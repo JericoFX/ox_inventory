@@ -70,9 +70,9 @@ jobs:
 
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@v1.2.1"
-        id: auto_release
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
           title: "${{ env.RELEASE_VERSION }}"
           prerelease: false
           files: ox_inventory.zip
