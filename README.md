@@ -1,3 +1,22 @@
+# ABOUT THIS FORK
+
+# Important Notice
+
+1. **Do not request support for QBCore-related issues on Overextended's Discord or GitHub.**  
+   The Overextended team has explicitly stated that they do not support QBCore, and it is important to respect their decision.
+
+2. **Credit to the Overextended (OX) Team:**  
+   All the work in this resource is the result of the Overextended team's efforts. I am not the original creator of this resource; they are the ones who deserve full credit.  
+   Additionally, all pull requests included in this fork originate from the Overextended team, not from myself.
+
+3. **About this Fork:**  
+   This is a fork of the original resource, including the latest commit before the "cure cancer" revert.
+
+   The purpose of this fork is to allow users to enjoy this incredible resource without being forced to switch to a different framework. My respect and gratitude go to the Overextended team for their outstanding work.
+
+4. **Framework Compatibility:**  
+   As stated in the original README, this resource can be adapted to work with any framework or even a custom-built one.
+
 # ox_inventory
 
 A complete inventory system for FiveM, implementing items, weapons, shops, and more without any strict framework dependency.
