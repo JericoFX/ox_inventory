@@ -61,7 +61,7 @@ end
 AddEventHandler('QBCore:Server:PlayerLoaded', setupPlayer)
 SetTimeout(500, function()
     QBCore = exports['qb-core']:GetCoreObject()
-    server.GetPlayerFromId = QBCore.Functions.GetPlayer
+    server.GetPlayerFromId = exports['qb-core']:GetPlayer
     local weapState = GetResourceState('qb-weapons')
     if weapState ~= 'missing' and (weapState == 'started' or weapState == 'starting') then
         StopResource('qb-weapons')
@@ -70,10 +70,10 @@ SetTimeout(500, function()
     if shopState ~= 'missing' and (shopState == 'started' or shopState == 'starting') then
         StopResource('qb-shops')
     end
-    for _, Player in pairs(QBCore.Functions.GetQBPlayers()) do setupPlayer(Player) end
+    for _, Player in pairs(exports['qb-core']:GetQBPlayers()) do setupPlayer(Player) end
 end)
 function server.UseItem(source, itemName, data)
-    local cb = QBCore.Functions.CanUseItem(itemName)
+    local cb = exports['qb-core']:CanUseItem(itemName)
     return cb and cb(source, data)
 end
 
@@ -189,7 +189,7 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function server.isPlayerBoss(playerId)
-    local Player = QBCore.Functions.GetPlayer(playerId)
+    local Player = exports['qb-core']:GetPlayer(playerId)
     return Player.PlayerData.job.isboss or Player.PlayerData.gang.isboss
 end
 
@@ -203,7 +203,7 @@ end
 ---Imagine if somebody who uses qb/qbox would PR these functions.
 export('qb-inventory.LoadInventory', function(playerId)
     if Inventory(playerId) then return end
-    local player = QBCore.Functions.GetPlayer(playerId)
+    local player = exports['qb-core']:GetPlayer(playerId)
     if player then
         setupPlayer(player)
         return Inventory(playerId).items

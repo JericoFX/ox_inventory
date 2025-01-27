@@ -1,4 +1,4 @@
-local QBCore = exports['qb-core']:GetCoreObject()
+local QBCore = exports['qb-core']:GetCoreObject({"PlayerData"})
 local Inventory = require 'modules.inventory.client'
 local Weapon = require 'modules.weapon.client'
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', client.onLogout)
@@ -33,9 +33,9 @@ function client.setPlayerStatus(values)
             value = value * 0.0001
         end
         if name == "hunger" then
-            TriggerServerEvent('consumables:server:addHunger', QBCore.Functions.GetPlayerData().metadata.hunger + value)
+            TriggerServerEvent('consumables:server:addHunger', QBCore.PlayerData.metadata.hunger + value)
         elseif name == "thirst" then
-            TriggerServerEvent('consumables:server:addThirst', QBCore.Functions.GetPlayerData().metadata.thirst + value)
+            TriggerServerEvent('consumables:server:addThirst', QBCore.PlayerData.metadata.thirst + value)
         elseif name == "stress" then
             if value > 0 then
                 TriggerServerEvent('hud:server:GainStress', value)
