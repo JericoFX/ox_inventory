@@ -1,3 +1,11 @@
+
+⚠️  *IMPORTANT*  ⚠️  
+
+This code is the property of OX. I have only restored a previous commit that included support for QBCore.  
+
+Do not seek support for this repository in OX Discord or any other related servers.  
+Respect OX's decision not to provide support for QBCore.  
+
 # ox_inventory
 
 A complete inventory system for FiveM, implementing items, weapons, shops, and more without any strict framework dependency.
