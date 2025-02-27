@@ -6,7 +6,7 @@ local function addDeferral(err)
         deferrals.done(err)
     end)
 end
-
+local SharedConfig = require 'config'
 -- Do not modify this file at all. This isn't a "config" file. You want to change
 -- resource settings? Use convars like you were told in the documentation.
 -- You did read the docs, right? Probably not, if you're here.
@@ -14,16 +14,17 @@ end
 
 shared = {
     resource = GetCurrentResourceName(),
-    framework = GetConvar('inventory:framework', 'qb'),
-    playerslots = GetConvarInt('inventory:slots', 50),
-    playerweight = GetConvarInt('inventory:weight', 30000),
-    target = GetConvarInt('inventory:target', 0) == 1,
-    police = json.decode(GetConvar('inventory:police', '["police", "sheriff"]')),
-    networkdumpsters = GetConvarInt('inventory:networkdumpsters', 0) == 1
+    framework = GetConvar('inventory:framework', SharedConfig.Framework),
+    playerslots = GetConvarInt('inventory:slots', SharedConfig.PlayerSlots),
+    playerweight = GetConvarInt('inventory:weight', SharedConfig.PlayerWeight),
+    target = GetConvarInt('inventory:target', SharedConfig.Target and 1 or 0) == 1,
+    police = json.decode(GetConvar('inventory:police', json.encode(SharedConfig.Police))),
+    networkdumpsters = GetConvarInt('inventory:networkdumpsters', SharedConfig.NetworkDumpsters and 1 or 0) == 1
 }
 
-shared.dropslots = GetConvarInt('inventory:dropslots', shared.playerslots)
-shared.dropweight = GetConvarInt('inventory:dropslotcount', shared.playerweight)
+shared.dropslots = GetConvarInt('inventory:dropslots', SharedConfig.DropSlots)
+shared.dropweight = GetConvarInt('inventory:dropslotcount', SharedConfig.DropWeight)
+
 
 do
     if type(shared.police) == 'string' then
@@ -40,59 +41,44 @@ do
 end
 
 if IsDuplicityVersion() then
+    local ServerConfig = require 'config_server'
     server = {
-        bulkstashsave = GetConvarInt('inventory:bulkstashsave', 1) == 1,
-        loglevel = GetConvarInt('inventory:loglevel', 1),
-        randomprices = GetConvarInt('inventory:randomprices', 0) == 1,
-        randomloot = GetConvarInt('inventory:randomloot', 1) == 1,
-        evidencegrade = GetConvarInt('inventory:evidencegrade', 2),
-        trimplate = GetConvarInt('inventory:trimplate', 1) == 1,
-        vehicleloot = json.decode(GetConvar('inventory:vehicleloot', [[
-			[
-				["sprunk", 1, 1],
-				["water", 1, 1],
-				["garbage", 1, 2, 50],
-				["panties", 1, 1, 5],
-				["money", 1, 50],
-				["money", 200, 400, 5],
-				["bandage", 1, 1]
-			]
-		]])),
-        dumpsterloot = json.decode(GetConvar('inventory:dumpsterloot', [[
-			[
-				["mustard", 1, 1],
-				["garbage", 1, 3],
-				["money", 1, 10],
-				["burger", 1, 1]
-			]
-		]])),
+       bulkstashsave = GetConvarInt('inventory:bulkstashsave', ServerConfig.BulkStashSave and 1 or 0) == 1,
+        loglevel = GetConvarInt('inventory:loglevel', ServerConfig.LogLevel),
+        randomprices = GetConvarInt('inventory:randomprices', ServerConfig.RandomPrices and 1 or 0) == 1,
+        randomloot = GetConvarInt('inventory:randomloot', ServerConfig.RandomLoot and 1 or 0) == 1,
+        evidencegrade = GetConvarInt('inventory:evidencegrade', ServerConfig.EvidenceGrade),
+        trimplate = GetConvarInt('inventory:trimplate', ServerConfig.TrimPlate and 1 or 0) == 1,
+        vehicleloot = json.decode(GetConvar('inventory:vehicleloot', json.encode(ServerConfig.VehicleLoot))),
+        dumpsterloot = json.decode(GetConvar('inventory:dumpsterloot', json.encode(ServerConfig.DumpsterLoot))),
     }
 
-    local accounts = json.decode(GetConvar('inventory:accounts', '["money"]'))
+    local accounts = json.decode(GetConvar('inventory:accounts',json.encode(ServerConfig.Accounts)))
     server.accounts = table.create(0, #accounts)
 
     for i = 1, #accounts do
         server.accounts[accounts[i]] = 0
     end
 else
+    local ClientConfig = require 'config_client'
     PlayerData = {}
-    client = {
-        autoreload = GetConvarInt('inventory:autoreload', 0) == 1,
-        screenblur = GetConvarInt('inventory:screenblur', 1) == 1,
-        keys = json.decode(GetConvar('inventory:keys', '')) or { 'F2', 'K', 'TAB' },
-        enablekeys = json.decode(GetConvar('inventory:enablekeys', '[249]')),
-        aimedfiring = GetConvarInt('inventory:aimedfiring', 0) == 1,
-        giveplayerlist = GetConvarInt('inventory:giveplayerlist', 0) == 1,
-        weaponanims = GetConvarInt('inventory:weaponanims', 1) == 1,
-        itemnotify = GetConvarInt('inventory:itemnotify', 1) == 1,
-        weaponnotify = GetConvarInt('inventory:weaponnotify', 1) == 1,
-        imagepath = GetConvar('inventory:imagepath', 'nui://ox_inventory/web/images'),
-        dropprops = GetConvarInt('inventory:dropprops', 0) == 1,
-        dropmodel = joaat(GetConvar('inventory:dropmodel', 'prop_med_bag_01b')),
-        weaponmismatch = GetConvarInt('inventory:weaponmismatch', 1) == 1,
-        ignoreweapons = json.decode(GetConvar('inventory:ignoreweapons', '[]')),
-        suppresspickups = GetConvarInt('inventory:suppresspickups', 1) == 1,
-        disableweapons = GetConvarInt('inventory:disableweapons', 0) == 1,
+   client = {
+        autoreload = GetConvarInt('inventory:autoreload', ClientConfig.AutoReload and 1 or 0) == 1,
+        screenblur = GetConvarInt('inventory:screenblur', ClientConfig.ScreenBlur and 1 or 0) == 1,
+        keys = json.decode(GetConvar('inventory:keys', json.encode(ClientConfig.Keys))),
+        enablekeys = json.decode(GetConvar('inventory:enablekeys', json.encode(ClientConfig.EnableKeys))),
+        aimedfiring = GetConvarInt('inventory:aimedfiring', ClientConfig.AimedFiring and 1 or 0) == 1,
+        giveplayerlist = GetConvarInt('inventory:giveplayerlist', ClientConfig.GivePlayerList and 1 or 0) == 1,
+        weaponanims = GetConvarInt('inventory:weaponanims', ClientConfig.WeaponAnims and 1 or 0) == 1,
+        itemnotify = GetConvarInt('inventory:itemnotify', ClientConfig.ItemNotify and 1 or 0) == 1,
+        weaponnotify = GetConvarInt('inventory:weaponnotify', ClientConfig.WeaponNotify and 1 or 0) == 1,
+        imagepath = GetConvar('inventory:imagepath', ClientConfig.ImagePath),
+        dropprops = GetConvarInt('inventory:dropprops', ClientConfig.DropProps and 1 or 0) == 1,
+        dropmodel = joaat(GetConvar('inventory:dropmodel', ClientConfig.DropModel)),
+        weaponmismatch = GetConvarInt('inventory:weaponmismatch', ClientConfig.WeaponMismatch and 1 or 0) == 1,
+        ignoreweapons = json.decode(GetConvar('inventory:ignoreweapons', json.encode(ClientConfig.IgnoreWeapons))),
+        suppresspickups = GetConvarInt('inventory:suppresspickups', ClientConfig.SuppressPickups and 1 or 0) == 1,
+        disableweapons = GetConvarInt('inventory:disableweapons', ClientConfig.DisableWeapons and 1 or 0) == 1,
     }
 
     local ignoreweapons = table.create(0, (client.ignoreweapons and #client.ignoreweapons or 0) + 3)
