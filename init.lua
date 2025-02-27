@@ -6,7 +6,7 @@ local function addDeferral(err)
         deferrals.done(err)
     end)
 end
-local SharedConfig = require 'config'
+local SharedConfig = require 'modules.config.shared'
 -- Do not modify this file at all. This isn't a "config" file. You want to change
 -- resource settings? Use convars like you were told in the documentation.
 -- You did read the docs, right? Probably not, if you're here.
@@ -41,7 +41,7 @@ do
 end
 
 if IsDuplicityVersion() then
-    local ServerConfig = require 'config_server'
+    local ServerConfig = require 'modules.config.server'
     server = {
        bulkstashsave = GetConvarInt('inventory:bulkstashsave', ServerConfig.BulkStashSave and 1 or 0) == 1,
         loglevel = GetConvarInt('inventory:loglevel', ServerConfig.LogLevel),
@@ -60,7 +60,7 @@ if IsDuplicityVersion() then
         server.accounts[accounts[i]] = 0
     end
 else
-    local ClientConfig = require 'config_client'
+    local ClientConfig = require 'modules.config.client'
     PlayerData = {}
    client = {
         autoreload = GetConvarInt('inventory:autoreload', ClientConfig.AutoReload and 1 or 0) == 1,
