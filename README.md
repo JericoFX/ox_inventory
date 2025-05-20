@@ -1,3 +1,15 @@
+# ⚠️ IMPORTANT NOTICE
+
+This is a **fork** of the original `ox_inventory` resource.  
+All credit goes to **overextended (OX)** and **CommunityOX (COX)**.
+
+> Please **DO NOT seek support** for this fork in any of their forums, Discord servers, or GitHub repositories.  
+> They have explicitly stated that **QBCore is not supported**, and this must be respected.
+
+This fork is maintained independently.  
+For issues, questions, or contributions, please use **this repository only**.
+
+
 # ox_inventory
 
 A complete inventory system for FiveM, implementing items, weapons, shops, and more without any strict framework dependency.
