@@ -15,7 +15,8 @@ dependencies {
     'ox_lib',
 }
 
-shared_script '@ox_lib/init.lua'
+shared_script { '@ox_lib/init.lua', "modules/config/config_shared.lua" }
+
 
 ox_libs {
     'locale',
@@ -25,14 +26,16 @@ ox_libs {
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    "modules/config/config_server.lua",
     'init.lua'
 }
 
-client_script 'init.lua'
+client_script { "modules/config/config_client.lua", 'init.lua' }
 
 ui_page 'web/build/index.html'
 
 files {
+    
     'client.lua',
     'server.lua',
     'locales/*.json',
