@@ -2,3 +2,8 @@ modules/logs/**/
 .cfg
 node_modules
 .idea
+C:/Users/eduar/Desktop/ox_inventory/test_container_usage.lua
+C:/Users/eduar/Desktop/ox_inventory/test_full_flow.lua
+test_container_usage.lua
+test_containers.lua
+test_full_flow.lua

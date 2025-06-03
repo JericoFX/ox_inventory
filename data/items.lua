@@ -222,4 +222,13 @@ return {
 		label = 'Scrap Metal',
 		weight = 80,
 	},
+
+	['tactical_backpack'] = {
+		label = 'Tactical Backpack',
+		weight = 500,
+		stack = false,
+		close = false,
+		consume = 0,
+		description = 'A high-capacity tactical backpack for serious operations'
+	},
 }
