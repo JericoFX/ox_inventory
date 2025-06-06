@@ -45,6 +45,7 @@ files {
     'web/images/*.png',
     'modules/**/shared.lua',
     'modules/**/client.lua',
+    'modules/**/**/client.lua',
     'modules/bridge/**/client.lua',
     'data/*.lua',
 }
