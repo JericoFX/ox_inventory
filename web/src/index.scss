@@ -2,34 +2,34 @@
 // === PALETA DE COLORES PRINCIPAL ===
 
 // Fondos principales
-$bg-primary: rgba(18, 18, 18, 0.95);     // #121212 con 95% opacidad
-$bg-secondary: rgba(10, 10, 10, 0.95);   // #0a0a0a con 95% opacidad
-$bg-solid: rgba(10, 10, 10, 1);          // #0a0a0a sólido
-$bg-hover: rgba(26, 26, 26, 0.95);       // #1a1a1a con 95% opacidad
+$bg-primary: rgba(18, 18, 18, 0.95); // #121212 con 95% opacidad
+$bg-secondary: rgba(10, 10, 10, 0.95); // #0a0a0a con 95% opacidad
+$bg-solid: rgba(10, 10, 10, 1); // #0a0a0a sólido
+$bg-hover: rgba(26, 26, 26, 0.95); // #1a1a1a con 95% opacidad
 
 // Texto
-$text-primary: #e2e8f0;                  // Texto principal blanco suave
-$text-secondary: #64748b;                // Texto secundario gris
-$text-disabled: #525252;                 // Texto deshabilitado
+$text-primary: #e2e8f0; // Texto principal blanco suave
+$text-secondary: #64748b; // Texto secundario gris
+$text-disabled: #525252; // Texto deshabilitado
 
 // Acentos y bordes
-$accent-primary: #3b82f6;                // Azul principal
-$accent-dark: #1e40af;                   // Azul oscuro para hover
+$accent-primary: #3b82f6; // Azul principal
+$accent-dark: #1e40af; // Azul oscuro para hover
 $border-subtle: rgba(59, 130, 246, 0.1); // Borde sutil
-$border-hover: rgba(59, 130, 246, 0.2);  // Borde hover
+$border-hover: rgba(59, 130, 246, 0.2); // Borde hover
 $border-active: rgba(59, 130, 246, 0.3); // Borde activo
 
 // Efectos de Glow y Sombras
-$glow-line: linear-gradient(90deg, 
-  transparent 0%, 
-  rgba(59, 130, 246, 0.2) 40%, 
-  rgba(255, 255, 255, 0.4) 50%, 
-  rgba(59, 130, 246, 0.2) 60%, 
-  transparent 100%);
+$glow-line: linear-gradient(
+  90deg,
+  transparent 0%,
+  rgba(59, 130, 246, 0.2) 40%,
+  rgba(255, 255, 255, 0.4) 50%,
+  rgba(59, 130, 246, 0.2) 60%,
+  transparent 100%
+);
 
-$glow-vertical: linear-gradient(180deg, 
-  rgba(59, 130, 246, 0.8), 
-  rgba(59, 130, 246, 0.3));
+$glow-vertical: linear-gradient(180deg, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.3));
 
 $shadow-subtle: 0 0 4px rgba(59, 130, 246, 0.2);
 $shadow-medium: 0 0 8px rgba(59, 130, 246, 0.3);
@@ -123,7 +123,7 @@ input[type='number']::-webkit-outer-spin-button {
   box-shadow: $shadow-modal;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -149,14 +149,14 @@ input[type='number']::-webkit-outer-spin-button {
   font-size: $font-size-sm;
   letter-spacing: $letter-spacing-tight;
   transition: all 0.15s ease;
-  
+
   &:hover {
     background: rgba(59, 130, 246, 0.05);
     border-color: $border-hover;
     color: $textColor;
     cursor: pointer;
   }
-  
+
   .context-menu-icon {
     width: 16px;
     height: 16px;
@@ -241,7 +241,7 @@ button:active {
   transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -251,7 +251,7 @@ button:active {
     height: 1px;
     background: $glow-line;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -262,19 +262,17 @@ button:active {
     background: $glow-vertical;
     transition: all 0.2s ease;
   }
-  
+
   &:hover {
     background: $bg-hover;
     border-color: $border-hover;
-    
+
     &::after {
       width: 3px;
-      background: linear-gradient(180deg, 
-        rgba(59, 130, 246, 1), 
-        rgba(59, 130, 246, 0.5));
+      background: linear-gradient(180deg, rgba(59, 130, 246, 1), rgba(59, 130, 246, 0.5));
     }
   }
-  
+
   .logo-text {
     color: $text-secondary;
     font-size: $font-size-lg;
@@ -285,118 +283,116 @@ button:active {
   }
 }
 
-  .inventory-control {
+.inventory-control {
+  display: flex;
+  background: $mainColor;
+  border-radius: 0;
+  padding: 16px 24px;
+  box-shadow: $shadow-medium;
+  border: 1px solid $border-subtle;
+  position: relative;
+  max-width: 600px;
+  width: 100%;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: $glow-vertical;
+    transition: all 0.2s ease;
+  }
+
+  &:hover::before {
+    width: 3px;
+    background: linear-gradient(180deg, rgba(59, 130, 246, 1), rgba(59, 130, 246, 0.5));
+  }
+
+  .inventory-control-wrapper {
     display: flex;
-    background: $mainColor;
-    border-radius: 0;
-    padding: 16px 24px;
-    box-shadow: $shadow-medium;
-    border: 1px solid $border-subtle;
-    position: relative;
-    max-width: 600px;
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
     width: 100%;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 2px;
-      height: 100%;
-      background: $glow-vertical;
-      transition: all 0.2s ease;
-    }
-    
-    &:hover::before {
-      width: 3px;
-      background: linear-gradient(180deg, 
-        rgba(59, 130, 246, 1), 
-        rgba(59, 130, 246, 0.5));
+  }
+
+  .inventory-control-input {
+    transition: all 0.15s ease;
+    padding: 14px 12px;
+    border-radius: 0;
+    font-family: $mainFont;
+    font-size: $font-size-sm;
+    text-align: center;
+    outline: none;
+    border: 1px solid $border-subtle;
+    color: $textColor;
+    background: transparent;
+    width: 120px;
+    font-weight: $font-weight-medium;
+    letter-spacing: $letter-spacing-tight;
+
+    &:focus {
+      border-color: $border-active;
+      box-shadow: $shadow-subtle;
     }
 
-      .inventory-control-wrapper {
-      display: flex;
-      flex-direction: row;
-      gap: 16px;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
+    &::placeholder {
+      color: $text-secondary;
+    }
+  }
+
+  .inventory-control-button {
+    font-size: $font-size-sm;
+    color: #ffffff;
+    background: $accent-primary;
+    transition: all 0.15s ease;
+    padding: 14px 20px;
+    border-radius: 0;
+    border: 1px solid $accent-primary;
+    text-transform: uppercase;
+    font-family: $mainFont;
+    min-width: 140px;
+    font-weight: $font-weight-medium;
+    letter-spacing: $letter-spacing-tight;
+    cursor: pointer;
+    box-shadow: $shadow-medium;
+
+    &:hover {
+      background: $accent-dark;
+      border-color: $accent-dark;
+      box-shadow: $shadow-strong;
     }
 
-      .inventory-control-input {
-      transition: all 0.15s ease;
-      padding: 14px 12px;
-      border-radius: 0;
-      font-family: $mainFont;
-      font-size: $font-size-sm;
-      text-align: center;
-      outline: none;
-      border: 1px solid $border-subtle;
-      color: $textColor;
-      background: transparent;
-      width: 120px;
-      font-weight: $font-weight-medium;
-      letter-spacing: $letter-spacing-tight;
-      
-      &:focus {
-        border-color: $border-active;
-        box-shadow: $shadow-subtle;
-      }
-      
-      &::placeholder {
-        color: $text-secondary;
-      }
-    }
-
-      .inventory-control-button {
-      font-size: $font-size-sm;
-      color: #ffffff;
-      background: $accent-primary;
-      transition: all 0.15s ease;
-      padding: 14px 20px;
-      border-radius: 0;
-      border: 1px solid $accent-primary;
-      text-transform: uppercase;
-      font-family: $mainFont;
-      min-width: 140px;
-      font-weight: $font-weight-medium;
-      letter-spacing: $letter-spacing-tight;
-      cursor: pointer;
-      box-shadow: $shadow-medium;
-      
-      &:hover {
-        background: $accent-dark;
-        border-color: $accent-dark;
-        box-shadow: $shadow-strong;
-      }
-    
     &:active {
       transform: translateY(0);
     }
-    
-          &.danger {
-        background: transparent;
+
+    &.danger {
+      background: transparent;
+      color: #f87171;
+      border-color: $border-subtle;
+
+      &:hover {
+        background: rgba(248, 113, 113, 0.05);
+        border-color: $border-hover;
         color: #f87171;
-        border-color: $border-subtle;
-        
-        &:hover {
-          background: rgba(248, 113, 113, 0.05);
-          border-color: $border-hover;
-          color: #f87171;
-        }
       }
-      
-      &.success {
-        background: transparent;
+    }
+
+    &.success {
+      background: transparent;
+      color: #4ade80;
+      border-color: $border-subtle;
+
+      &:hover {
+        background: rgba(74, 222, 128, 0.05);
+        border-color: $border-hover;
         color: #4ade80;
-        border-color: $border-subtle;
-        
-        &:hover {
-          background: rgba(74, 222, 128, 0.05);
-          border-color: $border-hover;
-          color: #4ade80;
-        }
       }
+    }
   }
 }
 
@@ -485,7 +481,6 @@ button:active {
 
 // Dialog is used fro useful controls window
 
-
 // inventory grids
 .inventory-grid-wrapper {
   display: flex;
@@ -497,7 +492,7 @@ button:active {
   box-shadow: $shadow-medium;
   border: 1px solid $border-subtle;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -508,12 +503,10 @@ button:active {
     background: $glow-vertical;
     transition: all 0.2s ease;
   }
-  
+
   &:hover::before {
     width: 3px;
-    background: linear-gradient(180deg, 
-      rgba(59, 130, 246, 1), 
-      rgba(59, 130, 246, 0.5));
+    background: linear-gradient(180deg, rgba(59, 130, 246, 1), rgba(59, 130, 246, 0.5));
   }
 }
 
@@ -527,7 +520,7 @@ button:active {
   margin-bottom: 4px;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -537,36 +530,36 @@ button:active {
     height: 1px;
     background: $glow-line;
   }
-  
-      .inventory-title {
-      font-size: $font-size-xl;
-      font-weight: $font-weight-medium;
-      color: $textColor;
-      margin: 0;
-      letter-spacing: $letter-spacing-tight;
-      text-transform: uppercase;
-    }
-  
+
+  .inventory-title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-medium;
+    color: $textColor;
+    margin: 0;
+    letter-spacing: $letter-spacing-tight;
+    text-transform: uppercase;
+  }
+
   .weight-display {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 2px;
-    
-          .weight-text {
-        font-size: $font-size-base;
-        color: $text-secondary;
-        font-weight: $font-weight-medium;
-        font-family: 'Roboto', sans-serif;
-        letter-spacing: $letter-spacing-base;
-      }
-      
-      .weight-percentage {
-        font-size: $font-size-xs;
-        color: $text-secondary;
-        opacity: 0.7;
-        letter-spacing: $letter-spacing-base;
-      }
+
+    .weight-text {
+      font-size: $font-size-base;
+      color: $text-secondary;
+      font-weight: $font-weight-medium;
+      font-family: 'Roboto', sans-serif;
+      letter-spacing: $letter-spacing-base;
+    }
+
+    .weight-percentage {
+      font-size: $font-size-xs;
+      color: $text-secondary;
+      opacity: 0.7;
+      letter-spacing: $letter-spacing-base;
+    }
   }
 }
 
@@ -581,41 +574,41 @@ button:active {
 }
 
 // inventory slots
-  .inventory-slot {
-    background: $secondaryColor;
-    background-repeat: no-repeat;
-    background-position: center;
-    border-radius: 0;
-    image-rendering: -webkit-optimize-contrast;
-    position: relative;
-    background-size: 7vh;
-    color: $textColor;
-    border: 1px solid $border-subtle;
-    transition: all 0.15s ease;
-    cursor: pointer;
-    
-    &:hover {
-      background: $bg-hover;
-      border-color: $border-hover;
-    }
-    
-    &.item-present {
-      border-color: $border-hover;
-      background: $bg-hover;
-    }
-    
-    &.rare-item {
-      border-left: 3px solid $accent-primary;
-    }
-    
-    &.epic-item {
-      border-left: 3px solid $accent-dark;
-    }
-    
-    &.legendary-item {
-      border-left: 3px solid #1e40af;
-    }
+.inventory-slot {
+  background: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 0;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: $textColor;
+  border: 1px solid $border-subtle;
+  transition: all 0.15s ease;
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-hover;
+    border-color: $border-hover;
   }
+
+  &.item-present {
+    border-color: $border-hover;
+    background: $bg-hover;
+  }
+
+  &.rare-item {
+    border-left: 3px solid $accent-primary;
+  }
+
+  &.epic-item {
+    border-left: 3px solid $accent-dark;
+  }
+
+  &.legendary-item {
+    border-left: 3px solid #1e40af;
+  }
+}
 
 .inventory-slot-label-box {
   background-color: $mainColor;
@@ -656,7 +649,7 @@ button:active {
   justify-content: space-between;
   height: 100%;
   padding: 6px;
-  
+
   p {
     font-size: 11px;
     font-weight: 500;
@@ -681,7 +674,7 @@ button:active {
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  
+
   .count-badge {
     background: rgba(113, 113, 122, 0.8);
     color: $textColor;
@@ -692,13 +685,13 @@ button:active {
     min-width: 18px;
     text-align: center;
   }
-  
-      .weight-text {
-      color: $text-secondary;
-      font-size: $font-size-xs;
-      font-family: 'Roboto', sans-serif;
-      letter-spacing: $letter-spacing-base;
-    }
+
+  .weight-text {
+    color: $text-secondary;
+    font-size: $font-size-xs;
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: $letter-spacing-base;
+  }
 }
 
 .item-slot-currency-wrapper {
@@ -724,7 +717,6 @@ button:active {
   }
 }
 
-
 .tooltip-wrapper {
   pointer-events: none;
   display: flex;
@@ -739,7 +731,7 @@ button:active {
   box-shadow: $shadow-modal;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -749,7 +741,7 @@ button:active {
     height: 1px;
     background: $glow-line;
   }
-  
+
   .tooltip-title {
     font-size: $font-size-xl;
     font-weight: $font-weight-medium;
@@ -757,29 +749,29 @@ button:active {
     color: $textColor;
     letter-spacing: $letter-spacing-tight;
   }
-  
+
   .tooltip-description {
     font-size: $font-size-lg;
     color: $text-secondary;
     line-height: 1.4;
     letter-spacing: $letter-spacing-base;
   }
-  
+
   .tooltip-stats {
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid $border-subtle;
-    
+
     .stat-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 4px;
       font-size: 13px;
-      
+
       .stat-label {
         color: $text-secondary;
       }
-      
+
       .stat-value {
         color: $textColor;
         font-weight: 500;
@@ -794,7 +786,7 @@ button:active {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-  
+
   .tooltip-item-name {
     font-size: 16px;
     font-weight: 600;
@@ -802,7 +794,7 @@ button:active {
     letter-spacing: -0.025em;
     margin: 0;
   }
-  
+
   .tooltip-item-type {
     font-size: 12px;
     color: $text-secondary;
@@ -810,7 +802,7 @@ button:active {
     letter-spacing: 0.1em;
     margin: 0;
   }
-  
+
   .tooltip-item-stats {
     display: flex;
     flex-direction: column;
@@ -943,7 +935,7 @@ button:active {
 }
 
 .transition-slide-up-enter {
-  transform: translateY(200px)
+  transform: translateY(200px);
 }
 
 .transition-slide-up-enter-active {

@@ -48,25 +48,16 @@ const InventoryControl: React.FC = () => {
             placeholder="Cantidad"
             onChange={(e) => setItemAmount(parseInt(e.target.value) || 1)}
           />
-          
-          <button
-            className="inventory-control-button success"
-            onClick={() => fetchNui('useItem', itemAmount)}
-          >
+
+          <button className="inventory-control-button success" onClick={() => fetchNui('useItem', itemAmount)}>
             Usar Item
           </button>
-          
-          <button
-            className="inventory-control-button"
-            onClick={() => fetchNui('giveItem', itemAmount)}
-          >
+
+          <button className="inventory-control-button" onClick={() => fetchNui('giveItem', itemAmount)}>
             Dar Item
           </button>
-          
-          <button
-            className="inventory-control-button danger"
-            onClick={() => fetchNui('closeInventory')}
-          >
+
+          <button className="inventory-control-button danger" onClick={() => fetchNui('closeInventory')}>
             Cerrar
           </button>
         </div>
