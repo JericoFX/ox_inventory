@@ -1822,9 +1822,15 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 						if containerItem then
 							local toContainer = toInventory.type == 'container'
 							local containerProps = getItems().containers[containerItem.name]
+							local checkItem = toContainer and fromData.name or toData.name
+
+							local itemExists = getItems()(checkItem)
+							if not itemExists then
+								return false, 'item_not_found'
+							end
+
 							local whitelist = containerProps and containerProps.whitelist
 							local blacklist = containerProps and containerProps.blacklist
-							local checkItem = toContainer and fromData.name or toData.name
 
 							if (whitelist and not whitelist[checkItem]) or (blacklist and blacklist[checkItem]) then
 								return
@@ -1888,6 +1894,16 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 						toInventory.weight = totalWeight
 
 						if container then
+							local toContainer = toInventory.type == 'container'
+							if toContainer and containerItem then
+								local itemExists = getItems()(fromData.name)
+								if not itemExists then
+									toData.count -= data.count
+									fromData.count += data.count
+									return false, 'item_not_found'
+								end
+							end
+
 							Inventory.ContainerWeight(containerItem,
 								toInventory.type == 'container' and toInventory.weight or fromInventory.weight,
 								playerInventory)

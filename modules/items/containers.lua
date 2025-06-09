@@ -307,12 +307,19 @@ function ContainerManager.ValidateItemForContainer(containerItem, targetItem)
 	local container = containers[containerItem]
 	if not container then return false end
 
-	-- Check whitelist first (if exists, only whitelisted items allowed)
+	local ItemsModule = getItems()
+	if not ItemsModule then return false end
+
+	local itemData = ItemsModule(targetItem)
+	if not itemData then
+		lib.print.warn(('Attempted to store non-existent item "%s" in container "%s"'):format(targetItem, containerItem))
+		return false
+	end
+
 	if container.whitelist then
 		return container.whitelist[targetItem] == true
 	end
 
-	-- Check blacklist (if exists, blacklisted items not allowed)
 	if container.blacklist then
 		return container.blacklist[targetItem] ~= true
 	end
