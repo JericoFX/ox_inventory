@@ -337,25 +337,6 @@ AddEventHandler('onResourceStop', function(resourceName)
 	end
 end)
 
--- Register default containers with the new system
-ContainerManager.RegisterContainer('paperbag', {
-	slots = 5,
-	maxWeight = 1000,
-	blacklist = { 'testburger' },
-	consume = 0,
-	stack = false,
-	close = false
-})
-
-ContainerManager.RegisterContainer('pizzabox', {
-	slots = 5,
-	maxWeight = 1000,
-	whitelist = { 'pizza' },
-	consume = 0,
-	stack = false,
-	close = false
-})
-
 -- Export functions
 exports('RegisterContainer', ContainerManager.RegisterContainer)
 exports('UnregisterContainer', ContainerManager.UnregisterContainer)
@@ -364,8 +345,43 @@ exports('GetAllContainers', ContainerManager.GetAllContainers)
 exports('CanPlayerUseContainer', ContainerManager.CanPlayerUseContainer)
 exports('ValidateItemForContainer', ContainerManager.ValidateItemForContainer)
 
+-- Internal function to register default containers (bypasses invoker check)
+local function registerDefaultContainers()
+	local defaultContainers = {
+		paperbag = {
+			slots = 5,
+			maxWeight = 1000,
+			blacklist = { 'testburger' },
+			consume = 0,
+			stack = false,
+			close = false
+		},
+		pizzabox = {
+			slots = 5,
+			maxWeight = 1000,
+			whitelist = { 'pizza' },
+			consume = 0,
+			stack = false,
+			close = false
+		}
+	}
+
+	for itemName, properties in pairs(defaultContainers) do
+		local validated = validateContainerProperties(itemName, properties, 'ox_inventory')
+		if validated then
+			containers[itemName] = validated
+			containers[itemName]._invoker = 'ox_inventory'
+			containers[itemName]._registered = os.time()
+			lib.print.info(('Default container registered: %s'):format(itemName))
+		end
+	end
+end
+
 -- Initialize Items reference and register callbacks for existing containers
 CreateThread(function()
+	-- Register default containers first
+	registerDefaultContainers()
+
 	-- Wait for Items module to be available
 	while not getItems() do
 		Wait(100)
