@@ -57,7 +57,7 @@ const InventoryControl: React.FC = () => {
             Dar Item
           </button>
 
-          <button className="inventory-control-button danger" onClick={() => fetchNui('closeInventory')}>
+          <button className="inventory-control-button danger" onClick={() => fetchNui('exit')}>
             Cerrar
           </button>
         </div>
