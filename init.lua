@@ -56,6 +56,7 @@ if IsDuplicityVersion() then
     for i = 1, #accounts do
         server.accounts[accounts[i]] = 0
     end
+    require 'modules.items.runtime'
 else
     PlayerData = {}
     local config_client = require 'modules.config.config_client'

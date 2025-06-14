@@ -388,7 +388,7 @@ CreateThread(function()
 	end
 
 	-- Register callbacks for already registered containers
-	for itemName, containerProps in pairs(containers) do
+	for itemName, _ in pairs(containers) do
 		local item = getItems()(itemName)
 		if item and not item.cb then
 			item.cb = function(event, item, inventory, slot)
