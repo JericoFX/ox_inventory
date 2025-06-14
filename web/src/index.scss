@@ -598,15 +598,33 @@ button:active {
   }
 
   &.rare-item {
-    border-left: 3px solid $accent-primary;
+    border-color: rgba(59, 130, 246, 0.3);
+    background-color: rgba(59, 130, 246, 0.05);
+    
+    &:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      background-color: rgba(59, 130, 246, 0.2);
+    }
   }
 
   &.epic-item {
-    border-left: 3px solid $accent-dark;
+    border-color: rgba(139, 92, 246, 0.3);
+    background-color: rgba(139, 92, 246, 0.05);
+    
+    &:hover {
+      border-color: rgba(139, 92, 246, 0.4);
+      background-color: rgba(139, 92, 246, 0.2);
+    }
   }
 
   &.legendary-item {
-    border-left: 3px solid #1e40af;
+    border-color: rgba(245, 158, 11, 0.3);
+    background-color: rgba(245, 158, 11, 0.05);
+    
+    &:hover {
+      border-color: rgba(245, 158, 11, 0.4);  
+      background-color: rgba(245, 158, 11, 0.2);
+    }
   }
 }
 

@@ -187,8 +187,40 @@ Item('clothing', function(data, slot)
 end)
 
 -----------------------------------------------------------------------------------------------
+-- No estoy seguro de esto porque es facil llamarlos desde el cliente con informmacion falsa sin antes chequear desde el server.
+RegisterNetEvent('ox_inventory:_addRuntimeItem', function(name, def)
+	if source == "" or not GetInvokingResource() then return end
+    lib.callback('ox_inventory:runtimeItemExists', false, function(ok)
+        if not ok then return end
+		def.count = 0
+		Items[name] = def
+    end, name)
+end)
+
+RegisterNetEvent('ox_inventory:_removeRuntimeItem', function(name)
+	if source == "" or not GetInvokingResource() then return end
+    lib.callback('ox_inventory:runtimeItemExists', false, function(exists)
+        if not exists then
+            Items[name] = nil
+        end
+    end, name)
+end)
+
+RegisterNetEvent('ox_inventory:_bulkRuntimeItems', function(tbl)
+	if source == "" or not GetInvokingResource() then return end
+    -- pedimos al server la lista buena para evitar inyecciones raras
+    lib.callback('ox_inventory:getRuntimeItems', false, function(real)
+        for k, v in pairs(tbl) do
+            if real[k] then
+                v.count = 0
+                Items[k] = v
+            end
+        end
+    end)
+end)
 
 exports('Items', function(item) return getItem(nil, item) end)
 exports('ItemList', function(item) return getItem(nil, item) end)
+
 
 return Items

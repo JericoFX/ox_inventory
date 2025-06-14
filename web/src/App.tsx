@@ -34,6 +34,7 @@ debugData([
               mustard: '60%',
               ketchup: '30%',
               mayo: '10%',
+              rarity: 'legendary',
             },
             count: 5,
           },
@@ -46,7 +47,7 @@ debugData([
             count: 1,
             metadata: { description: 'Generic item description' },
           },
-          { slot: 5, name: 'water', weight: 100, count: 1 },
+          { slot: 5, name: 'water', weight: 100, count: 1, metadata: { rarity: 'legendary' } },
           {
             slot: 6,
             name: 'backwoods',
@@ -55,6 +56,7 @@ debugData([
             metadata: {
               label: 'Russian Cream',
               imageurl: 'https://i.imgur.com/2xHhTTz.png',
+              rarity: 'epic',
             },
           },
         ],

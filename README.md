@@ -94,6 +94,11 @@ We provide compatibility for major FiveM frameworks:
 - **Advanced crafting system** - Extended crafting mechanics
 - **Container on Memory creation** - Container exports for easy creation
 
+### **Runtime Item Registration**
+
+- **RegisterItem / UnregisterItem** exports let any resource create or remove items at runtime without server restart.
+- Calls are **rate-limited (10 per second, per resource)** to avoid network spam.
+
 ---
 
 ## 📦 Item System
