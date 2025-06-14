@@ -3,7 +3,7 @@ if not lib then return end
 local Items = require 'modules.items.shared' --[[@as table<string, OxClientItem>]]
 
 local function sendDisplayMetadata(data)
-    SendNUIMessage({
+	SendNUIMessage({
 		action = 'displayMetadata',
 		data = data
 	})
@@ -16,9 +16,9 @@ local function displayMetadata(metadata, value)
 	local data = {}
 
 	if type(metadata) == 'string' then
-        if not value then return end
+		if not value then return end
 
-        data = { { metadata = metadata, value = value } }
+		data = { { metadata = metadata, value = value } }
 	elseif table.type(metadata) == 'array' then
 		for i = 1, #metadata do
 			for k, v in pairs(metadata[i]) do
@@ -37,15 +37,15 @@ local function displayMetadata(metadata, value)
 		end
 	end
 
-    if client.uiLoaded then
-        return sendDisplayMetadata(data)
-    end
+	if client.uiLoaded then
+		return sendDisplayMetadata(data)
+	end
 
-    CreateThread(function()
-        repeat Wait(100) until client.uiLoaded
+	CreateThread(function()
+		repeat Wait(100) until client.uiLoaded
 
-        sendDisplayMetadata(data)
-    end)
+		sendDisplayMetadata(data)
+	end)
 end
 
 exports('displayMetadata', displayMetadata)
@@ -54,17 +54,17 @@ exports('displayMetadata', displayMetadata)
 ---@param name string?
 ---@return table?
 local function getItem(_, name)
-    if not name then return Items end
+	if not name then return Items end
 
 	if type(name) ~= 'string' then return end
 
-    name = name:lower()
+	name = name:lower()
 
-    if name:sub(0, 7) == 'weapon_' then
-        name = name:upper()
-    end
+	if name:sub(0, 7) == 'weapon_' then
+		name = name:upper()
+	end
 
-    return Items[name]
+	return Items[name]
 end
 
 setmetatable(Items --[[@as table]], {
@@ -120,7 +120,7 @@ Item('parachute', function(data, slot)
 				GiveWeaponToPed(cache.ped, chute, 0, true, false)
 				SetPedGadget(cache.ped, chute, true)
 				lib.requestModel(1269906701)
-				client.parachute = {CreateParachuteBagObject(cache.ped, true, true), slot?.metadata?.type or -1}
+				client.parachute = { CreateParachuteBagObject(cache.ped, true, true), slot?.metadata?.type or -1 }
 				if slot.metadata.type then
 					SetPlayerParachuteTintIndex(PlayerData.id, slot.metadata.type)
 				end
@@ -186,38 +186,7 @@ Item('clothing', function(data, slot)
 	end)
 end)
 
------------------------------------------------------------------------------------------------
--- No estoy seguro de esto porque es facil llamarlos desde el cliente con informmacion falsa sin antes chequear desde el server.
-RegisterNetEvent('ox_inventory:_addRuntimeItem', function(name, def)
-	if source == "" or not GetInvokingResource() then return end
-    lib.callback('ox_inventory:runtimeItemExists', false, function(ok)
-        if not ok then return end
-		def.count = 0
-		Items[name] = def
-    end, name)
-end)
 
-RegisterNetEvent('ox_inventory:_removeRuntimeItem', function(name)
-	if source == "" or not GetInvokingResource() then return end
-    lib.callback('ox_inventory:runtimeItemExists', false, function(exists)
-        if not exists then
-            Items[name] = nil
-        end
-    end, name)
-end)
-
-RegisterNetEvent('ox_inventory:_bulkRuntimeItems', function(tbl)
-	if source == "" or not GetInvokingResource() then return end
-    -- pedimos al server la lista buena para evitar inyecciones raras
-    lib.callback('ox_inventory:getRuntimeItems', false, function(real)
-        for k, v in pairs(tbl) do
-            if real[k] then
-                v.count = 0
-                Items[k] = v
-            end
-        end
-    end)
-end)
 
 exports('Items', function(item) return getItem(nil, item) end)
 exports('ItemList', function(item) return getItem(nil, item) end)
