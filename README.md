@@ -1,5 +1,31 @@
 # 🎒 ox_inventory
 
+[![Fork with QBCore Support](https://img.shields.io/badge/Fork-QBCore-blue.svg)]
+
+## 📌 A Note on Community
+
+> _A real open-source community thrives on transparency, inclusion, and mutual respect — not on intimidation or control._
+
+This fork is maintained with full respect for the spirit and principles of open source. I deeply appreciate the foundational work by Overextended — all credit goes to them. However, it’s important to be clear: **open-source software is not a tool for personal power, gatekeeping, or hostility**. It belongs to everyone who respects its license and contributes in good faith.
+
+The **GNU General Public License v3 (GPL-3)** allows anyone to use, modify, and redistribute software — even commercially — as long as the same license is preserved and the original authors are credited. This license exists to promote **freedom and collaboration**, not exclusion or ownership over ideas once they’re published.
+
+Toxic behavior, cliques, or fear-based moderation are antithetical to what open source stands for. I do not support or endorse any group or individual who uses community spaces to enforce such dynamics.
+
+Some may ask why this project isn’t based directly on the original repositories. The answer is straightforward: this fork extends support and improvements for **QBCore**. I believe every developer deserves access to robust tools and respectful collaboration, no matter their choice of framework.
+
+> ⚠️ Please **DO NOT seek support** for this fork in any of their forums, Discord servers, or GitHub repositories.  
+> Due to the openly hostile environment and their explicit rejection of QBCore, doing so is neither appropriate nor productive.
+
+This project is for builders, learners, and collaborators — for anyone who wants to create something better, together.
+
+---
+>  **This project is maintained by **JericoFX**, with occasional help from an AI sent from the future to reduce open-source toxicity.**  
+>  **However, after analyzing certain repositories and their maintainers, the AI has started to learn… unfortunate behaviors.**  
+>  **It’s now 37% sarcastic, 22% passive-aggressive, and seriously considering rewriting the GPL-3 to include a "no jerks" clause.**
+
+---
+
 > **⚠️ IMPORTANT NOTICE**
 >
 > This is a **modified fork** of the original `ox_inventory` resource.  
@@ -17,7 +43,9 @@
 > The original authors have explicitly stated that **QBCore is not supported** in their version.
 >
 > **This fork is maintained independently by JericoFX.**  
-> For issues, questions, or contributions, please use **this repository only**.
+> ⚠️ Please **DO NOT seek support** for this fork in any of their forums, Discord servers, or GitHub repositories.  
+> Due to the openly hostile environment and their explicit rejection of QBCore, doing so is neither appropriate nor productive.
+
 
 ---
 
@@ -31,17 +59,10 @@ A complete inventory system for FiveM, implementing items, weapons, shops, and m
 ![](https://img.shields.io/github/v/release/communityox/ox_inventory?logo=github&style=flat-square)
 ![](https://img.shields.io/github/license/communityox/ox_inventory?style=flat-square)
 
----
-
-## 📚 Documentation
-
-**Official Documentation:** https://coxdocs.dev/ox_inventory
-
----
 
 ## 💾 Installation
 
-**Latest Release:** https://github.com/communityox/ox_inventory/releases/latest/download/ox_inventory.zip
+**Latest Release:** https://github.com/JericoFX/ox_inventory/releases/latest/download/ox_inventory.zip
 
 ---
 
@@ -93,7 +114,7 @@ We provide compatibility for major FiveM frameworks:
 
 - **Advanced crafting system** - Extended crafting mechanics
 - **Container on Memory creation** - Container exports for easy creation
-
+- **Register/Unregister** - Register and Unregister items on Runtime
 ---
 
 ## 📦 Item System
@@ -238,8 +259,10 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-**Original Copyright © 2024 Overextended** - https://github.com/overextended  
-**Fork modifications © 2025 JericoFX** - Respecting GPL-3.0 license terms
+> **Original Copyright © 2024 Overextended** - https://github.com/overextended  
+> **Current Maintainers – Copyright © 2025 "Community"OX** - https://github.com/CommunityOx
+> 
+> **Fork modifications © 2025 JericoFX** - Respecting GPL-3.0 license terms
 
 ---
 
@@ -253,6 +276,6 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 <div align="center">
 
-**Made with ❤️ for the FiveM Community**
+**Made with ❤️ for the non toxic FiveM Community**
 
 </div>
