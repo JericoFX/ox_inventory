@@ -8,6 +8,33 @@ TriggerEvent('ox_inventory:itemList', ItemList)
 
 Items.containers = require 'modules.items.containers'
 
+-- Listener para containers registrados dinámicamente
+AddEventHandler('ox_inventory:containerRegistered', function(itemName, containerData)
+	if shared.debug then
+		print(('Container registrado dinámicamente: %s'):format(itemName))
+	end
+end)
+
+---Verifica si un item es un container registrado
+---@param itemName string
+---@return table?
+local function getContainerData(itemName)
+	return Items.containers[itemName]
+end
+
+---Registra un container dinámicamente (función auxiliar)
+---@param itemName string
+---@param properties table
+function Items.RegisterContainer(itemName, properties)
+	local success, containerModule = pcall(function()
+		return exports[shared.resource]:setContainerProperties(itemName, properties)
+	end)
+
+	if not success then
+		warn(('Error al registrar container %s: %s'):format(itemName, containerModule))
+	end
+end
+
 -- Possible metadata when creating garbage
 local trash = {
 	{ description = 'A discarded burger carton.',       weight = 50,  image = 'trash_burger' },
@@ -482,5 +509,9 @@ end
 -- end)
 
 -----------------------------------------------------------------------------------------------
+
+-- Exports adicionales para containers
+exports('RegisterContainer', Items.RegisterContainer)
+exports('GetContainerData', getContainerData)
 
 return Items

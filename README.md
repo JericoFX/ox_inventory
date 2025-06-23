@@ -20,7 +20,8 @@ Some may ask why this project isn’t based directly on the original repositorie
 This project is for builders, learners, and collaborators — for anyone who wants to create something better, together.
 
 ---
->  **This project is maintained by **JericoFX**, with occasional help from an AI sent from the future to reduce open-source toxicity.**  
+
+> **This project is maintained by **JericoFX**, with occasional help from an AI sent from the future to reduce open-source toxicity.**  
 >  **However, after analyzing certain repositories and their maintainers, the AI has started to learn… unfortunate behaviors.**  
 >  **It’s now 37% sarcastic, 22% passive-aggressive, and seriously considering rewriting the GPL-3 to include a "no jerks" clause.**
 
@@ -46,7 +47,6 @@ This project is for builders, learners, and collaborators — for anyone who wan
 > ⚠️ Please **DO NOT seek support** for this fork in any of their forums, Discord servers, or GitHub repositories.  
 > Due to the openly hostile environment and their explicit rejection of QBCore, doing so is neither appropriate nor productive.
 
-
 ---
 
 ## 📋 Overview
@@ -58,7 +58,6 @@ A complete inventory system for FiveM, implementing items, weapons, shops, and m
 ![](https://img.shields.io/github/contributors/communityox/ox_inventory?logo=github&style=flat-square)
 ![](https://img.shields.io/github/v/release/communityox/ox_inventory?logo=github&style=flat-square)
 ![](https://img.shields.io/github/license/communityox/ox_inventory?style=flat-square)
-
 
 ## 💾 Installation
 
@@ -115,6 +114,7 @@ We provide compatibility for major FiveM frameworks:
 - **Advanced crafting system** - Extended crafting mechanics
 - **Container on Memory creation** - Container exports for easy creation
 - **Register/Unregister** - Register and Unregister items on Runtime
+
 ---
 
 ## 📦 Item System
@@ -157,6 +157,8 @@ We provide compatibility for major FiveM frameworks:
 ### **Dynamic Containers**
 
 - **Item-based containers** (paperbags, backpacks, briefcases)
+- **Runtime container registration** with improved `setContainerProperties` export
+- **Enhanced container system** supporting dynamic registration after resource startup
 - **Vehicle storage** (gloveboxes, trunks) for any vehicle
 - **Random loot generation** in dumpsters and abandoned vehicles
 
@@ -207,6 +209,17 @@ local count = exports.ox_inventory:GetItemCount(source, 'bread')
 
 -- Create custom stash
 exports.ox_inventory:RegisterStash('police_locker', 'Police Locker', 50, 100000)
+
+
+-- Alternative method for runtime registration
+exports.ox_inventory:RegisterContainer('briefcase', {
+    slots = 15,
+    maxWeight = 8000,
+    whitelist = {'documents', 'money'}
+})
+
+-- Get container data
+local containerData = exports.ox_inventory:getContainerProperties('custom_bag')
 ```
 
 ### **Event System**
@@ -261,7 +274,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 > **Original Copyright © 2024 Overextended** - https://github.com/overextended  
 > **Current Maintainers – Copyright © 2025 "Community"OX** - https://github.com/CommunityOx
-> 
+>
 > **Fork modifications © 2025 JericoFX** - Respecting GPL-3.0 license terms
 
 ---
