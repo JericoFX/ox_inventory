@@ -112,7 +112,6 @@ CreateThread(function()
 
 			shared.info('Database contains', #items, 'items.')
 		end
-
 		Wait(500)
 	elseif shared.framework == 'qb' then
 		local QBCore = exports['qb-core']:GetCoreObject()
@@ -290,8 +289,7 @@ function Items.Metadata(inv, item, metadata, count)
 		if not metadata.components then metadata.components = {} end
 
 		if metadata.registered ~= false and (metadata.ammo or item.name == 'WEAPON_STUNGUN') then
-			local registered = type(metadata.registered) == 'string' and metadata.registered or
-				(inv and inv.player and inv.player.name)
+			local registered = type(metadata.registered) == 'string' and metadata.registered or inv?.player?.name
 			metadata.registered = registered
 			metadata.serial = GenerateSerial(metadata.serial)
 		end
@@ -306,12 +304,6 @@ function Items.Metadata(inv, item, metadata, count)
 			count = 1
 			metadata.container = metadata.container or GenerateText(3) .. os.time()
 			metadata.size = container.size
-
-			-- Add new container metadata for enhanced functionality
-			metadata.containerType = item.name
-			metadata.consume = container.consume
-			metadata.durability = container.durability
-			metadata.groups = container.groups
 		elseif not next(metadata) then
 			if item.name == 'identification' then
 				count = 1
@@ -374,7 +366,7 @@ end
 function Items.CheckMetadata(metadata, item, name, ostime)
 	if metadata.bag then
 		metadata.container = metadata.bag
-		metadata.size = Items.containers[name] and Items.containers[name].size or { 5, 1000 }
+		metadata.size = Items.containers[name]?.size or { 5, 1000 }
 		metadata.bag = nil
 	end
 
@@ -471,60 +463,6 @@ end
 -----------------------------------------------------------------------------------------------
 -- Serverside item functions
 -----------------------------------------------------------------------------------------------
-
--- Container use function - allows containers to be opened when used
-local function useContainer(event, item, inventory, slot)
-	if event == 'usingItem' then
-		local slotData = inventory.items[slot]
-		if not slotData or not slotData.metadata.container then return false end
-
-		-- Check if player can use this container
-		local canUse, reason = exports.ox_inventory:CanPlayerUseContainer(inventory.id, item.name)
-		if not canUse then
-			TriggerClientEvent('ox_lib:notify', inventory.id, {
-				type = 'error',
-				description = reason or 'Cannot use container'
-			})
-			return false
-		end
-
-		-- Open the container inventory
-		TriggerClientEvent('ox_inventory:openInventory', inventory.id, 'container', slot)
-		return false -- Don't consume the item
-	end
-end
-
--- Register container use callbacks for all containers
-CreateThread(function()
-	Wait(1000) -- Wait for Items to be loaded
-
-	for itemName, containerProps in pairs(Items.containers) do
-		local item = Items(itemName)
-		if item and not item.cb then
-			item.cb = useContainer
-			shared.info(('Container use callback registered for: %s'):format(itemName))
-		end
-	end
-end)
-
--- Dynamic registration for new containers
-local originalRegisterContainer = exports.ox_inventory and exports.ox_inventory.RegisterContainer
-if originalRegisterContainer then
-	exports('RegisterContainer', function(itemName, properties)
-		local success = originalRegisterContainer(itemName, properties)
-
-		if success then
-			-- Register the callback for the new container
-			local item = Items(itemName)
-			if item and not item.cb then
-				item.cb = useContainer
-				shared.info(('Container use callback registered for: %s'):format(itemName))
-			end
-		end
-
-		return success
-	end)
-end
 
 -- Item('testburger', function(event, item, inventory, slot, data)
 -- 	if event == 'usingItem' then
