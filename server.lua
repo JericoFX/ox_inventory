@@ -7,7 +7,7 @@ require 'modules.pefcl.server'
 require 'modules.inventory.physics.server'
 
 if GetConvar('inventory:versioncheck', 'true') == 'true' then
-	lib.versionCheck('communityox/ox_inventory')
+	lib.versionCheck('JericoFX/ox_inventory')
 end
 
 local TriggerEventHooks = require 'modules.hooks.server'

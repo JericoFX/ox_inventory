@@ -117,35 +117,24 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
     }
   };
 
-  // Function to determine rarity class
-  const getRarityClass = () => {
-    if (!isSlotWithItem(item)) return '';
-    
-    const rarity = item.metadata?.rarity || 'common';
-    switch (rarity) {
-      case 'rare': return 'rare-item';
-      case 'epic': return 'epic-item';
-      case 'legendary': return 'legendary-item';
-      default: return '';
-    }
-  };
-
   const refs = useMergeRefs([connectRef, ref]);
+
+  const rarity = (item as any)?.metadata?.rarity ? (item as any).metadata.rarity.toLowerCase() : 'common';
 
   return (
     <div
       ref={refs}
       onContextMenu={handleContext}
       onClick={handleClick}
-      className={`inventory-slot ${isSlotWithItem(item) ? 'item-present' : ''} ${getRarityClass()}`}
+      className={`inventory-slot rarity-${rarity} ${isDragging ? 'dragging' : ''}`}
       style={{
         filter:
           !canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) || !canCraftItem(item, inventoryType)
             ? 'brightness(80%) grayscale(100%)'
             : undefined,
-        opacity: isDragging ? 0.4 : 1.0,
+        opacity: isDragging ? 0.4 : 1.0, // maintain slight transparency while dragging
         backgroundImage: `url(${item?.name ? getItemUrl(item as SlotWithItem) : 'none'}`,
-        border: isOver ? '2px dashed rgba(37, 99, 235, 0.6)' : '',
+        border: isOver ? '1px dashed rgba(255,255,255,0.4)' : undefined,
       }}
     >
       {isSlotWithItem(item) && (
@@ -154,7 +143,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
           onMouseEnter={() => {
             timerRef.current = window.setTimeout(() => {
               dispatch(openTooltip({ item, inventoryType }));
-            }, 300) as unknown as number;
+            }, 500) as unknown as number;
           }}
           onMouseLeave={() => {
             dispatch(closeTooltip());
@@ -171,18 +160,18 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
           >
             {inventoryType === 'player' && item.slot <= 5 && <div className="inventory-slot-number">{item.slot}</div>}
             <div className="item-slot-info-wrapper">
-              {item.count && item.count > 1 && (
-                <div className="count-badge">
-                  {item.count.toLocaleString('en-us')}
-                </div>
-              )}
-              {item.weight > 0 && (
-                <div className="weight-text">
-                  {item.weight >= 1000
-                    ? `${(item.weight / 1000).toFixed(1)}kg`
-                    : `${Math.round(item.weight)}g`}
-                </div>
-              )}
+              <p>
+                {item.weight > 0
+                  ? item.weight >= 1000
+                    ? `${(item.weight / 1000).toLocaleString('en-us', {
+                        minimumFractionDigits: 2,
+                      })}kg `
+                    : `${item.weight.toLocaleString('en-us', {
+                        minimumFractionDigits: 0,
+                      })}g `
+                  : ''}
+              </p>
+              <p>{item.count ? item.count.toLocaleString('en-us') + `x` : ''}</p>
             </div>
           </div>
           <div>

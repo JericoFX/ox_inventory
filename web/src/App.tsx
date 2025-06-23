@@ -44,7 +44,7 @@ debugData([
             name: 'water',
             weight: 100,
             count: 1,
-            metadata: { description: 'Generic item description' },
+            metadata: { description: 'Generic item description', rarity: 'legendary' },
           },
           { slot: 5, name: 'water', weight: 100, count: 1 },
           {
@@ -55,6 +55,7 @@ debugData([
             metadata: {
               label: 'Russian Cream',
               imageurl: 'https://i.imgur.com/2xHhTTz.png',
+              rarity: 'epic',
             },
           },
         ],

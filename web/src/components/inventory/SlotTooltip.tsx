@@ -33,23 +33,17 @@ const SlotTooltip: React.ForwardRefRenderFunction<
       ) : (
         <div style={{ ...style }} className="tooltip-wrapper" ref={ref}>
           <div className="tooltip-header-wrapper">
-            <div className="tooltip-item-name">
-              {item.metadata?.label || itemData.label || item.name}
-            </div>
-            <div className="tooltip-item-stats">
-              {inventoryType === 'crafting' ? (
-                <div className="tooltip-crafting-duration">
-                  <ClockIcon />
-                  <p>{(item.duration !== undefined ? item.duration : 3000) / 1000}s</p>
-                </div>
-              ) : (
-                item.metadata?.type && (
-                  <div className="tooltip-item-type">
-                    {item.metadata.type}
-                  </div>
-                )
-              )}
-            </div>
+            <p>{item.metadata?.label || itemData.label || item.name}</p>
+            {inventoryType === 'crafting' ? (
+              <div className="tooltip-crafting-duration">
+                <ClockIcon />
+                <p>{(item.duration !== undefined ? item.duration : 3000) / 1000}s</p>
+              </div>
+            ) : (
+              <p className={`rarity-text rarity-${(item.metadata?.rarity || 'common').toLowerCase()}`}>
+                {(item.metadata?.rarity || 'Common').toString()}
+              </p>
+            )}
           </div>
           <Divider />
           {description && (

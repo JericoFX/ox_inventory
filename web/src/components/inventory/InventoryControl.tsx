@@ -44,21 +44,26 @@ const InventoryControl: React.FC = () => {
             className="inventory-control-input"
             type="number"
             defaultValue={itemAmount}
+            onChange={inputHandler}
             min={0}
-            placeholder="Cantidad"
-            onChange={(e) => setItemAmount(parseInt(e.target.value) || 1)}
           />
-
-          <button className="inventory-control-button success" onClick={() => fetchNui('useItem', itemAmount)}>
-            Usar Item
+          <button className="inventory-control-button" ref={use}>
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2a1 1 0 0 1 1 1v8h8a1 1 0 1 1 0 2h-9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" />
+            </svg>
+            {Locale.ui_use || 'Use'}
           </button>
-
-          <button className="inventory-control-button" onClick={() => fetchNui('giveItem', itemAmount)}>
-            Dar Item
+          <button className="inventory-control-button" ref={give}>
+            <svg viewBox="0 0 24 24">
+              <path d="M14 3l7 7-7 7v-4H4v-6h10V3z" />
+            </svg>
+            {Locale.ui_give || 'Give'}
           </button>
-
-          <button className="inventory-control-button danger" onClick={() => fetchNui('exit')}>
-            Cerrar
+          <button className="inventory-control-button" onClick={() => fetchNui('exit')}>
+            <svg viewBox="0 0 24 24">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            {Locale.ui_close || 'Close'}
           </button>
         </div>
       </div>
