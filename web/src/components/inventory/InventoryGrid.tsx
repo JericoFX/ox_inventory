@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Inventory } from '../../typings';
+import { InventoryType } from '../../typings/inventory';
 import WeightBar from '../utils/WeightBar';
 import InventorySlot from './InventorySlot';
 import { getTotalWeight } from '../../helpers';
@@ -13,6 +14,9 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
     () => (inventory.maxWeight !== undefined ? Math.floor(getTotalWeight(inventory.items) * 1000) / 1000 : 0),
     [inventory.maxWeight, inventory.items]
   );
+
+  const usedSlots = useMemo(() => inventory.items.filter((i) => (i as any).name).length, [inventory.items]);
+
   const [page, setPage] = useState(0);
   const containerRef = useRef(null);
   const { ref, entry } = useIntersection({ threshold: 0.5 });
@@ -27,17 +31,30 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
     <>
       <div className="inventory-grid-wrapper" style={{ pointerEvents: isBusy ? 'none' : 'auto' }}>
         <div>
-          <div className="inventory-grid-header-wrapper">
+          <div
+            className={`inventory-grid-header-wrapper ${
+              inventory.type === InventoryType.CONTAINER ? 'container-header' : ''
+            }`}
+          >
             <p>{inventory.label}</p>
-            {inventory.maxWeight && (
+            {inventory.type === InventoryType.CONTAINER ? (
               <p>
-                {weight / 1000}/{inventory.maxWeight / 1000}kg
+                {usedSlots}/{inventory.slots}
               </p>
+            ) : (
+              inventory.maxWeight && (
+                <p>
+                  {weight / 1000}/{inventory.maxWeight / 1000}kg
+                </p>
+              )
             )}
           </div>
           <WeightBar percent={inventory.maxWeight ? (weight / inventory.maxWeight) * 100 : 0} />
         </div>
-        <div className="inventory-grid-container" ref={containerRef}>
+        <div
+          className={`inventory-grid-container ${inventory.type === InventoryType.CONTAINER ? 'container-grid' : ''}`}
+          ref={containerRef}
+        >
           <>
             {inventory.items.slice(0, (page + 1) * PAGE_SIZE).map((item, index) => (
               <InventorySlot

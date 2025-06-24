@@ -6,13 +6,13 @@
 
 > _A real open-source community thrives on transparency, inclusion, and mutual respect — not on intimidation or control._
 
-This fork is maintained with full respect for the spirit and principles of open source. I deeply appreciate the foundational work by Overextended — all credit goes to them. However, it’s important to be clear: **open-source software is not a tool for personal power, gatekeeping, or hostility**. It belongs to everyone who respects its license and contributes in good faith.
+This fork is maintained with full respect for the spirit and principles of open source. I deeply appreciate the foundational work by Overextended — all credit goes to them. However, it's important to be clear: **open-source software is not a tool for personal power, gatekeeping, or hostility**. It belongs to everyone who respects its license and contributes in good faith.
 
-The **GNU General Public License v3 (GPL-3)** allows anyone to use, modify, and redistribute software — even commercially — as long as the same license is preserved and the original authors are credited. This license exists to promote **freedom and collaboration**, not exclusion or ownership over ideas once they’re published.
+The **GNU General Public License v3 (GPL-3)** allows anyone to use, modify, and redistribute software — even commercially — as long as the same license is preserved and the original authors are credited. This license exists to promote **freedom and collaboration**, not exclusion or ownership over ideas once they're published.
 
 Toxic behavior, cliques, or fear-based moderation are antithetical to what open source stands for. I do not support or endorse any group or individual who uses community spaces to enforce such dynamics.
 
-Some may ask why this project isn’t based directly on the original repositories. The answer is straightforward: this fork extends support and improvements for **QBCore**. I believe every developer deserves access to robust tools and respectful collaboration, no matter their choice of framework.
+Some may ask why this project isn't based directly on the original repositories. The answer is straightforward: this fork extends support and improvements for **QBCore**. I believe every developer deserves access to robust tools and respectful collaboration, no matter their choice of framework.
 
 > ⚠️ Please **DO NOT seek support** for this fork in any of their forums, Discord servers, or GitHub repositories.  
 > Due to the openly hostile environment and their explicit rejection of QBCore, doing so is neither appropriate nor productive.
@@ -23,7 +23,7 @@ This project is for builders, learners, and collaborators — for anyone who wan
 
 > **This project is maintained by **JericoFX**, with occasional help from an AI sent from the future to reduce open-source toxicity.**  
 >  **However, after analyzing certain repositories and their maintainers, the AI has started to learn… unfortunate behaviors.**  
->  **It’s now 37% sarcastic, 22% passive-aggressive, and seriously considering rewriting the GPL-3 to include a "no jerks" clause.**
+>  **It's now 37% sarcastic, 22% passive-aggressive, and seriously considering rewriting the GPL-3 to include a "no jerks" clause.**
 
 ---
 
@@ -157,8 +157,6 @@ We provide compatibility for major FiveM frameworks:
 ### **Dynamic Containers**
 
 - **Item-based containers** (paperbags, backpacks, briefcases)
-- **Runtime container registration** with improved `setContainerProperties` export
-- **Enhanced container system** supporting dynamic registration after resource startup
 - **Vehicle storage** (gloveboxes, trunks) for any vehicle
 - **Random loot generation** in dumpsters and abandoned vehicles
 
@@ -178,6 +176,7 @@ We provide compatibility for major FiveM frameworks:
 - **Drag & drop** functionality for intuitive item management
 - **Visual feedback** for all user interactions
 - **Accessibility features** for better user experience
+- **Container view below inventory** – when opening item containers, their contents render in a separate grid stacked beneath the main inventory for easier organisation
 
 ### **Performance Optimized**
 
@@ -209,17 +208,6 @@ local count = exports.ox_inventory:GetItemCount(source, 'bread')
 
 -- Create custom stash
 exports.ox_inventory:RegisterStash('police_locker', 'Police Locker', 50, 100000)
-
-
--- Alternative method for runtime registration
-exports.ox_inventory:RegisterContainer('briefcase', {
-    slots = 15,
-    maxWeight = 8000,
-    whitelist = {'documents', 'money'}
-})
-
--- Get container data
-local containerData = exports.ox_inventory:getContainerProperties('custom_bag')
 ```
 
 ### **Event System**

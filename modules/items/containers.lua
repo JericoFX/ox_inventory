@@ -20,6 +20,7 @@ end
 ---Registers items with itemName as containers (i.e. backpacks, wallets).
 ---@param itemName string
 ---@param properties ItemContainerProperties
+---@todo Rework containers for flexibility, improved data structure; then export this method.
 local function setContainerProperties(itemName, properties)
 	local blacklist, whitelist = properties.blacklist, properties.whitelist
 
@@ -49,26 +50,10 @@ local function setContainerProperties(itemName, properties)
 		whitelist = whitelist,
 	}
 
-	-- Notificar al sistema que se registró un nuevo container
-	TriggerEvent('ox_inventory:containerRegistered', itemName, containers[itemName])
-end
-
----Obtiene las propiedades de un container
----@param itemName string
----@return table?
-local function getContainerProperties(itemName)
-	return containers[itemName]
-end
-
----Obtiene todos los containers registrados
----@return table
-local function getAllContainers()
-	return containers
+	GlobalState['ox_inv_container_' .. itemName] = containers[itemName]
 end
 
 exports('setContainerProperties', setContainerProperties)
-exports('getContainerProperties', getContainerProperties)
-exports('getAllContainers', getAllContainers)
 
 setContainerProperties('paperbag', {
 	slots = 5,
