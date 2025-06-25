@@ -38,22 +38,16 @@ CreateThread(function()
 end)
 
 -- Listen to statebag changes for this player
-AddStateBagChangeHandler('inv_movement_speed', nil, function(bagName, key, value, _, replicated)
-    if bagName == ('player:' .. cache.serverId) then
-        applyMovementEffect(value or 1.0)
-    end
+AddStateBagChangeHandler('inv_movement_speed', 'player:' .. cache.serverId, function(bagName, key, value, _, replicated)
+    applyMovementEffect(value or 1.0)
 end)
 
-AddStateBagChangeHandler('inv_stamina_drain', nil, function(bagName, key, value, _, replicated)
-    if bagName == ('player:' .. cache.serverId) then
-        applyStaminaEffect(value or 1.0)
-    end
+AddStateBagChangeHandler('inv_stamina_drain', 'player:' .. cache.serverId, function(bagName, key, value, _, replicated)
+    applyStaminaEffect(value or 1.0)
 end)
 
-AddStateBagChangeHandler('inv_weapon_sway', nil, function(bagName, key, value, _, replicated)
-    if bagName == ('player:' .. cache.serverId) then
-        applyWeaponEffect(value or 1.0)
-    end
+AddStateBagChangeHandler('inv_weapon_sway', 'player:' .. cache.serverId, function(bagName, key, value, _, replicated)
+    applyWeaponEffect(value or 1.0)
 end)
 
 exports('getCurrentEffects', function()
