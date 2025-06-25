@@ -64,16 +64,28 @@ end
 function InventoryPhysics.ApplyEffects(playerId, effects)
     if not effects then return end
 
-    if effects.movement_speed < 1.0 then
-        TriggerClientEvent('ox_inventory:applyMovementEffect', playerId, effects.movement_speed)
+    local player = Player(playerId)
+    if not player or not player.state then return end
+
+    -- Movement speed
+    if effects.movement_speed and effects.movement_speed < 1.0 then
+        player.state:set('inv_movement_speed', effects.movement_speed, true)
+    else
+        player.state.inv_movement_speed = nil
     end
 
-    if effects.stamina_drain > 1.0 then
-        TriggerClientEvent('ox_inventory:applyStaminaEffect', playerId, effects.stamina_drain)
+    -- Stamina drain
+    if effects.stamina_drain and effects.stamina_drain > 1.0 then
+        player.state:set('inv_stamina_drain', effects.stamina_drain, true)
+    else
+        player.state.inv_stamina_drain = nil
     end
 
-    if effects.weapon_sway > 1.0 then
-        TriggerClientEvent('ox_inventory:applyWeaponEffect', playerId, effects.weapon_sway)
+    -- Weapon sway
+    if effects.weapon_sway and effects.weapon_sway > 1.0 then
+        player.state:set('inv_weapon_sway', effects.weapon_sway, true)
+    else
+        player.state.inv_weapon_sway = nil
     end
 end
 
