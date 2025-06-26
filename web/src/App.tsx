@@ -107,6 +107,11 @@ const App: React.FC = () => {
 
   fetchNui('uiLoaded', {});
 
+  // Recibe datos de ítems añadidos en runtime
+  useNuiEvent<{ [key: string]: typeof Items[string] }>('registerItem', (itemData) => {
+    for (const name in itemData) Items[name] = itemData[name];
+  });
+
   useNuiEvent('closeInventory', () => {
     manager.dispatch({ type: 'dnd-core/END_DRAG' });
   });

@@ -51,9 +51,39 @@ local function setContainerProperties(itemName, properties)
 	}
 
 	GlobalState['ox_inv_container_' .. itemName] = containers[itemName]
+	shared.info(('runtime container registered: %s'):format(itemName))
 end
 
 exports('setContainerProperties', setContainerProperties)
+
+-- Validate if an item is permitted to be placed inside a container
+---@param containerName string Name of the container item (e.g. "paperbag")
+---@param itemName string Name of the item being placed into the container
+---@return boolean allowed True if the item can be stored in the container
+local function validateItemForContainer(containerName, itemName)
+	local container = containers[containerName]
+	if not container then
+		-- If the container has no special rules, allow any item
+		return true
+	end
+
+	-- Whitelist has priority over blacklist. If a whitelist exists, the item must be on it.
+	local whitelist = container.whitelist
+	if whitelist then
+		return whitelist[itemName] == true
+	end
+
+	-- Otherwise, check blacklist (if present). Items on the blacklist are not allowed.
+	local blacklist = container.blacklist
+	if blacklist then
+		return blacklist[itemName] ~= true
+	end
+
+	-- No whitelist or blacklist => no restrictions
+	return true
+end
+
+exports('ValidateItemForContainer', validateItemForContainer)
 
 setContainerProperties('paperbag', {
 	slots = 5,

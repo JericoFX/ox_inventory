@@ -70,7 +70,34 @@ local function newItem(data)
 	end
 
 	::continue::
+	--print("Creando tabla con item:", data.name, "data:", json.encode(data, { indent = true }))
 	ItemList[data.name] = data
+
+	-- Si estamos en cliente y la UI está cargada, enviar los datos del ítem recién registrado para que el NUI lo conozca.
+	if not isServer and client and client.uiLoaded  then
+		local buttons
+		if data.buttons then
+			buttons = {}
+			for i = 1, #data.buttons do
+				buttons[i] = { label = data.buttons[i].label, group = data.buttons[i].group }
+			end
+		end
+
+		local itemPayload = {
+			[data.name] = {
+				label = data.label,
+				stack = data.stack,
+				close = data.close,
+				count = 0,
+				description = data.description,
+				buttons = buttons,
+				ammoName = data.ammoname,
+				image = data.client and data.client.image
+			}
+		}
+
+		SendNUIMessage({ action = 'registerItem', data = itemPayload })
+	end
 end
 
 for type, data in pairs(lib.load('data.weapons') or {}) do
@@ -172,9 +199,11 @@ if isServer then
 
 	local function registerRuntimeItem(item)
 		assert(type(item) == 'table' and item.name, 'registerRuntimeItem expects item table with name')
-
+		if not item.name:find('^WEAPON_') then
+			item.name = item.name:lower()
+		end
 		newItem(item)
-
+		shared.info(('runtime item registered: %s'):format(item.name))
 		GlobalState['ox_inv_item_' .. item.name] = stripFunctions(item)
 	end
 
