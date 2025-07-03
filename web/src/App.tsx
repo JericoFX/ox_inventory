@@ -108,7 +108,7 @@ const App: React.FC = () => {
   fetchNui('uiLoaded', {});
 
   // Recibe datos de ítems añadidos en runtime
-  useNuiEvent<{ [key: string]: typeof Items[string] }>('registerItem', (itemData) => {
+  useNuiEvent<{ [key: string]: (typeof Items)[string] }>('registerItem', (itemData) => {
     for (const name in itemData) Items[name] = itemData[name];
   });
 
