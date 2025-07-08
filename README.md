@@ -115,6 +115,10 @@ We provide compatibility for major FiveM frameworks:
 - **Container on Memory creation** - Container exports for easy creation
 - **Register/Unregister** - Register and Unregister items on Runtime
 
+### 🆕 **Recently Added**
+
+- **Dynamic Inventory Types System** - Create custom inventory types for world objects with configurable items and server-side validation
+
 ---
 
 ## 📦 Item System
@@ -159,6 +163,42 @@ We provide compatibility for major FiveM frameworks:
 - **Item-based containers** (paperbags, backpacks, briefcases)
 - **Vehicle storage** (gloveboxes, trunks) for any vehicle
 - **Random loot generation** in dumpsters and abandoned vehicles
+
+### **Dynamic Inventory Types System**
+
+- **Custom inventory types** for world objects with server-side validation
+- **Configurable item generation** with spawn rates and quantities
+- **Model-based registration** supporting multiple object models per type
+- **Automatic refresh** on resource/server restart or manual triggers
+- **Permission-based access** with group/job restrictions
+- **Network synchronization** for consistent cross-client behavior
+
+```lua
+-- Register a new inventory type
+exports.ox_inventory:RegisterInventoryType({
+    name = 'lockers',
+    models = { 1234567890, 9876543210 },
+    interaction = {
+        distance = 2.0,
+        icon = 'fas fa-box',
+        label = 'Open Locker'
+    },
+    behavior = {
+        useNetwork = true,
+        freezeEntity = false
+    },
+    slots = 10,
+    maxWeight = 50000,
+    items = {
+        maxItems = 3,
+        items = {
+            { name = 'water', min = 1, max = 2, chance = 60 },
+            { name = 'bandage', min = 1, max = 1, chance = 30 },
+            { name = 'money', min = 10, max = 100, chance = 15 }
+        }
+    }
+})
+```
 
 ### **Registration System**
 
@@ -208,6 +248,18 @@ local count = exports.ox_inventory:GetItemCount(source, 'bread')
 
 -- Create custom stash
 exports.ox_inventory:RegisterStash('police_locker', 'Police Locker', 50, 100000)
+
+-- Dynamic Inventory Types
+exports.ox_inventory:RegisterInventoryType(config)
+exports.ox_inventory:UnregisterInventoryType(typeName)
+exports.ox_inventory:RefreshInventoryType(typeName)
+exports.ox_inventory:SetInventoryTypeItems(typeName, itemConfig)
+exports.ox_inventory:GetInventoryTypeItems(typeName)
+
+-- Client-side detection
+exports.ox_inventory:IsNearInventoryObject(entity)
+exports.ox_inventory:OpenInventoryObject(entity)
+exports.ox_inventory:DetectInventoryObject(entity)
 ```
 
 ### **Event System**

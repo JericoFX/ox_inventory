@@ -1,6 +1,7 @@
 if not lib then return end
 
 local Inventory = {}
+local InventoryTypesClient = require 'modules.inventory.inventory_types_client'
 
 Inventory.Dumpsters = lib.array:new(218085040, 666561306, -58485588, -206690185, 1511880420, 682791951)
 
@@ -28,23 +29,7 @@ if shared.networkdumpsters then
 end
 
 function Inventory.OpenDumpster(entity)
-    if shared.networkdumpsters then
-        local coords = GetEntityCoords(entity)
-        client.openInventory('dumpster', coords)
-        return
-    end
-
-    local netId = NetworkGetEntityIsNetworked(entity) and NetworkGetNetworkIdFromEntity(entity)
-
-    if not netId then
-        local coords = GetEntityCoords(entity)
-        entity = GetClosestObjectOfType(coords.x, coords.y, coords.z, 0.1, GetEntityModel(entity), true, true, true)
-        netId = entity ~= 0 and NetworkGetNetworkIdFromEntity(entity)
-    end
-
-    if netId then
-        client.openInventory('dumpster', 'dumpster' .. netId)
-    end
+    return InventoryTypesClient.OpenInventoryObject(entity)
 end
 
 local Utils = require 'modules.utils.client'
@@ -121,6 +106,19 @@ if shared.target then
         end
     })
 end
+
+-- Dynamic Inventory Types Client Exports
+exports('IsNearInventoryObject', function(entity)
+    return InventoryTypesClient.IsNearInventoryObject(entity)
+end)
+
+exports('OpenInventoryObject', function(entity)
+    return InventoryTypesClient.OpenInventoryObject(entity)
+end)
+
+exports('DetectInventoryObject', function(entity)
+    return InventoryTypesClient.DetectInventoryObject(entity)
+end)
 
 ---@param search 'slots' | 1 | 'count' | 2
 ---@param item table | string

@@ -1,6 +1,7 @@
 if not lib then return end
 
 local Inventory = {}
+local InventoryTypes = require 'modules.inventory.inventory_types'
 
 ---@type table<any, OxInventory>
 local Inventories = {}
@@ -2888,5 +2889,152 @@ function Inventory.InspectInventory(playerId, invId)
 end
 
 exports('InspectInventory', Inventory.InspectInventory)
+
+-- Dynamic Inventory Types System
+RegisterNetEvent('ox_inventory:validateInventoryObject', function(netId, model)
+	local source = source
+	local entity = netId and NetworkGetEntityFromNetworkId(netId)
+	
+	if not entity or not DoesEntityExist(entity) then return end
+	
+	if GetEntityModel(entity) ~= model then return end
+	
+	local inventoryType = InventoryTypes.GetTypeByModel(model)
+	if not inventoryType then return end
+	
+	local valid, error = InventoryTypes.ValidateAccess(inventoryType.name, source, entity)
+	if not valid then
+		return TriggerClientEvent('ox_lib:notify', source, { type = 'error', description = error })
+	end
+	
+	local player = Ox.GetPlayer(source)
+	if not player then return end
+	
+	local inventoryId
+	local coords = GetEntityCoords(entity)
+	
+	if inventoryType.behavior.useNetwork then
+		inventoryId = ('%s-%s-%s-%s'):format(inventoryType.name, math.floor(coords.x), math.floor(coords.y), math.floor(coords.z))
+	else
+		inventoryId = ('%s-%s'):format(inventoryType.name, netId)
+	end
+	
+	local inventory = Inventory(inventoryId)
+	
+	if not inventory then
+		local cachedItems = InventoryTypes.GetCachedItems(inventoryType.name, inventoryId)
+		local items = {}
+		
+		if not cachedItems then
+			local generatedItems = InventoryTypes.GenerateItems(inventoryType.name, inventoryId)
+			InventoryTypes.RefreshItems(inventoryType.name, inventoryId)
+			
+			for i, itemData in ipairs(generatedItems) do
+				items[i] = { itemData.item, itemData.count }
+			end
+		else
+			for i, itemData in ipairs(cachedItems) do
+				items[i] = { itemData.item, itemData.count }
+			end
+		end
+		
+		inventory = Inventory.Create(inventoryId, inventoryType.interaction.label or inventoryType.name, inventoryType.name, 
+			inventoryType.slots or 15, 0, inventoryType.maxWeight or 100000, false, items)
+		
+		if inventoryType.behavior.freezeEntity then
+			FreezeEntityPosition(entity, true)
+		end
+	end
+	
+	if inventory then
+		player:openInventory(inventory)
+	end
+end)
+
+-- Inventory Types Exports
+exports('RegisterInventoryType', function(config)
+	return InventoryTypes.Register(config)
+end)
+
+exports('UnregisterInventoryType', function(typeName)
+	return InventoryTypes.Unregister(typeName)
+end)
+
+exports('GetInventoryType', function(typeName)
+	return InventoryTypes.GetType(typeName)
+end)
+
+exports('GetInventoryTypes', function()
+	return InventoryTypes.GetTypes()
+end)
+
+exports('RefreshInventoryType', function(typeName)
+	local types = InventoryTypes.GetTypes()
+	if not types[typeName] then return false end
+	
+	for inventoryId in pairs(types[typeName].cache) do
+		InventoryTypes.RefreshItems(typeName, inventoryId)
+	end
+	
+	return true
+end)
+
+exports('SetInventoryTypeItems', function(typeName, itemConfig)
+	local typeData = InventoryTypes.GetType(typeName)
+	if not typeData then return false end
+	
+	typeData.items = itemConfig
+	typeData.cache = {}
+	
+	return true
+end)
+
+exports('GetInventoryTypeItems', function(typeName)
+	local typeData = InventoryTypes.GetType(typeName)
+	return typeData and typeData.items
+end)
+
+-- Initialize built-in inventory types
+CreateThread(function()
+	local success = InventoryTypes.Register({
+		name = 'dumpster',
+		models = { 218085040, 666561306, -58485588, -206690185, 1511880420, 682791951 },
+		interaction = {
+			distance = 2.0,
+			icon = 'fas fa-dumpster',
+			label = 'Search Dumpster'
+		},
+		behavior = {
+			useNetwork = shared.networkdumpsters,
+			freezeEntity = true
+		},
+		slots = 15,
+		maxWeight = 100000,
+		items = {
+			maxItems = 3,
+			items = server.dumpsterloot and #server.dumpsterloot > 0 and (function()
+				local items = {}
+				for i, loot in ipairs(server.dumpsterloot) do
+					items[i] = {
+						name = loot[1],
+						min = loot[2],
+						max = loot[3],
+						chance = loot[4] or 80
+					}
+				end
+				return items
+			end)() or {
+				{ name = 'garbage', min = 1, max = 3, chance = 80 },
+				{ name = 'scrapmetal', min = 1, max = 2, chance = 40 },
+				{ name = 'cigarettes', min = 1, max = 1, chance = 20 },
+				{ name = 'money', min = 5, max = 25, chance = 10 }
+			}
+		}
+	})
+	
+	if not success then
+		print('Failed to register dumpster inventory type')
+	end
+end)
 
 return Inventory
