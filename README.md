@@ -120,6 +120,7 @@ We provide compatibility for major FiveM frameworks:
 - **Dynamic Inventory Types System** - Create custom inventory types for world objects with configurable items, server-side validation, and automatic item generation. Supports both coordinate-based and network-based ID generation with full export API
 - **Enhanced Security System** - Automatic object freezing, real-time movement detection, and comprehensive exploit prevention for all dynamic inventories
 - **Fixed Object Freezing Logic** - Corrected freeze behavior to only freeze objects when they don't use network synchronization, preventing unnecessary network overhead while maintaining exploit protection
+- **Secure Presets System** - Comprehensive preset management system with server-side validation, rate limiting, usage tracking, and security logging. Supports job restrictions, location-based activation, and activator items with configurable cooldowns
 
 ---
 
@@ -352,6 +353,255 @@ The system includes comprehensive protection against common exploits:
 
 ---
 
+## 🎁 Presets System
+
+### **Overview**
+
+The Presets System allows administrators to create predefined item packages that can be given to players based on specific conditions such as job, location, or activator items. This system includes comprehensive security features and usage tracking.
+
+### **Key Features**
+
+🔒 **Security First:**
+- Server-side validation for all preset operations
+- Rate limiting with configurable cooldowns
+- Input sanitization and parameter validation
+- Comprehensive logging of security events
+- Protection against abuse and exploitation
+
+📊 **Usage Tracking:**
+- Per-player usage limits with configurable maximums
+- Automatic reset conditions (job change, death, etc.)
+- Detailed usage statistics and reporting
+- Admin tools for managing player usage
+
+🎯 **Flexible Conditions:**
+- Job/group requirements
+- Location-based activation
+- Activator item requirements
+- New player only restrictions
+- Weight and inventory space validation
+
+### **Configuration**
+
+Presets are configured in `modules/config/config_server.lua`:
+
+```lua
+enablePresetsSystem = true,  -- Enable/disable the system
+
+presets = {
+    police_basic = {
+        label = "Police Basic Kit",
+        items = {
+            { item = "WEAPON_PISTOL", count = 1, metadata = { ammo = 50 } },
+            { item = "handcuffs", count = 2 },
+            { item = "radio", count = 1 }
+        },
+        jobs = { "police" },                           -- Required jobs
+        weight_check = true,                           -- Check inventory weight
+        max_uses = 1,                                  -- Maximum uses per player
+        reset_on_death = false,                        -- Reset on death
+        reset_on_job_change = true,                    -- Reset on job change
+        activator_item = "police_card",                -- Required activator item
+        activator_coords = vec3(441.0, -982.0, 30.0), -- Activation location
+        activator_distance = 3.0                       -- Distance from location
+    },
+    newbie_kit = {
+        label = "Newbie Starter Kit",
+        items = {
+            { item = "phone", count = 1 },
+            { item = "water", count = 2 },
+            { item = "bread", count = 3 }
+        },
+        weight_check = true,
+        max_uses = 1,
+        reset_on_death = false,
+        reset_on_job_change = false,
+        new_player_only = true                         -- Only for new players
+    }
+}
+```
+
+### **Usage**
+
+#### **Player Commands**
+
+```bash
+# Show available presets menu
+/preset
+
+# Apply specific preset directly
+/preset [preset_name]
+
+# Use activator item for preset
+/usepreset [preset_name]
+```
+
+#### **Admin Commands**
+
+```bash
+# Reset player's preset usage
+/resetpresetusage [player_id] [preset_name]
+```
+
+### **Security Features**
+
+🛡️ **Rate Limiting:**
+- Command cooldown: 5 seconds between commands
+- Preset cooldown: 30 seconds between preset applications
+- Maximum 5 attempts per minute per player
+
+🔍 **Input Validation:**
+- All player inputs are sanitized and validated
+- Preset names limited to alphanumeric characters
+- Item counts capped at 1000 per preset
+- Metadata validation for item properties
+
+📝 **Security Logging:**
+- All security events are logged with player information
+- Failed validation attempts are tracked
+- Unauthorized access attempts are recorded
+- Admin actions are logged for auditing
+
+💾 **Database Persistence:**
+- Preset usage is permanently stored in database
+- Survives server restarts and player disconnections
+- Automatic table creation on first startup
+- Cross-framework player identification support
+
+### **Developer API**
+
+#### **Core Functions**
+
+```lua
+-- Apply preset to player
+local success, message = exports.ox_inventory:ApplyPreset(playerId, presetName, bypassChecks)
+
+-- Validate preset for player
+local valid, reason = exports.ox_inventory:ValidatePreset(playerId, presetName)
+
+-- Use activator item
+local success, message = exports.ox_inventory:UseActivatorItem(playerId, presetName)
+
+-- Get available presets for player
+local presets = exports.ox_inventory:GetAvailablePresets(playerId)
+
+-- Check location activation
+local canActivate = exports.ox_inventory:CheckLocationActivation(playerId, presetName)
+```
+
+#### **Management Functions**
+
+```lua
+-- Reset usage for player
+exports.ox_inventory:ResetUsage(playerId, presetName)
+
+-- Check if player has used preset
+local hasUsed = exports.ox_inventory:HasUsedPreset(playerId, presetName)
+
+-- Get player's usage statistics
+local usage = exports.ox_inventory:GetPlayerUsage(playerId)
+
+-- Get preset information
+local info = exports.ox_inventory:GetPresetInfo(presetName)
+```
+
+#### **Bulk Operations**
+
+```lua
+-- Give preset to all players with specific job
+local count = exports.ox_inventory:GivePresetToJob(jobName, presetName)
+
+-- Reset all usage for player
+exports.ox_inventory:ResetAllUsage(playerId)
+
+-- Check if system is enabled
+local enabled = exports.ox_inventory:IsSystemEnabled()
+
+-- Get database schema for manual setup
+local schema = exports.ox_inventory:GetDatabaseSchema()
+
+-- Create database tables manually
+exports.ox_inventory:CreateDatabaseTables()
+```
+
+### **Preset Configuration Options**
+
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| `label` | string | Display name for the preset | `presetName` |
+| `items` | table | Array of items to give | Required |
+| `jobs` | table | Required job names | `nil` |
+| `weight_check` | boolean | Check inventory weight capacity | `false` |
+| `max_uses` | number | Maximum uses per player | `nil` (unlimited) |
+| `reset_on_death` | boolean | Reset usage on player death | `false` |
+| `reset_on_job_change` | boolean | Reset usage on job change | `false` |
+| `new_player_only` | boolean | Only available to new players | `false` |
+| `activator_item` | string | Required item to activate preset | `nil` |
+| `activator_coords` | vector3 | Required location coordinates | `nil` |
+| `activator_distance` | number | Distance from activation location | `5.0` |
+
+### **Item Configuration**
+
+```lua
+items = {
+    {
+        item = "item_name",        -- Item name (required)
+        count = 1,                 -- Quantity (required)
+        metadata = {               -- Optional metadata
+            durability = 100,
+            serial = "ABC123",
+            quality = 90
+        }
+    }
+}
+```
+
+### **Persistence System**
+
+The presets system uses database persistence to ensure usage limits are maintained across server restarts and player disconnections:
+
+**🔄 How it works:**
+1. **First Load** - When a player first connects, usage data is loaded from database
+2. **Real-time Updates** - Every preset usage is immediately saved to database
+3. **Memory + Database** - System uses memory cache for performance with database backup
+4. **Automatic Cleanup** - Memory is cleared on disconnect, database persists
+
+**📊 Database Behavior:**
+- **Player Identification** - Uses framework-specific identifiers (citizenid, identifier, userId)
+- **Automatic Creation** - Tables are created automatically on startup
+- **Efficient Queries** - Uses UPSERT operations for optimal performance
+- **Cross-Session** - Usage limits work across server restarts and reconnections
+
+**🛡️ Data Integrity:**
+- **Unique Constraints** - Prevents duplicate entries per player/preset
+- **Indexed Lookups** - Fast retrieval of usage data
+- **Atomic Operations** - All database updates are transactional
+- **Fallback Safety** - System gracefully handles database errors
+
+### **Best Practices**
+
+🎯 **Performance:**
+- Keep item counts reasonable (< 1000 per preset)
+- Use appropriate cooldowns to prevent spam
+- Monitor usage statistics for optimization
+- Database operations are optimized but avoid excessive preset usage
+
+🔐 **Security:**
+- Always validate permissions before applying presets
+- Use job/group restrictions for sensitive items
+- Monitor security logs for suspicious activity
+- Implement proper cooldowns for public presets
+- Database persistence prevents usage limit bypassing
+
+⚙️ **Configuration:**
+- Test presets thoroughly before deployment
+- Use descriptive labels and organize by purpose
+- Document preset purposes and restrictions
+- Regular cleanup of unused presets
+- Database maintains historical usage data automatically
+
+---
+
 ## 🎨 User Interface
 
 ### **Modern Design**
@@ -404,6 +654,13 @@ exports.ox_inventory:GetInventoryTypeItems(typeName)
 exports.ox_inventory:IsNearInventoryObject(entity)
 exports.ox_inventory:OpenInventoryObject(entity)
 exports.ox_inventory:DetectInventoryObject(entity)
+
+-- Presets System
+exports.ox_inventory:ApplyPreset(playerId, presetName, bypassChecks)
+exports.ox_inventory:ValidatePreset(playerId, presetName)
+exports.ox_inventory:GetAvailablePresets(playerId)
+exports.ox_inventory:ResetUsage(playerId, presetName)
+exports.ox_inventory:GivePresetToJob(jobName, presetName)
 ```
 
 ### **Event System**
@@ -419,6 +676,29 @@ exports.ox_inventory:DetectInventoryObject(entity)
 - **ox_lib** - Required dependency
 - **MySQL/MariaDB** - Database storage
 - **Supported Framework** - ESX, QBox, QBCore, ND_Core, or ox_core
+
+### **Database Tables**
+
+The system automatically creates the following database tables:
+
+#### **ox_preset_usage**
+Stores preset usage tracking for persistent limits across sessions:
+```sql
+CREATE TABLE IF NOT EXISTS `ox_preset_usage` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `player_identifier` varchar(100) NOT NULL,
+    `preset_name` varchar(50) NOT NULL,
+    `usage_count` int(11) NOT NULL DEFAULT 0,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `player_preset` (`player_identifier`, `preset_name`),
+    KEY `idx_player_identifier` (`player_identifier`),
+    KEY `idx_preset_name` (`preset_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+> **Note:** Tables are created automatically on first startup. No manual database setup required.
 
 ---
 
