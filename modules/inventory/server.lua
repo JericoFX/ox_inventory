@@ -2907,7 +2907,7 @@ RegisterNetEvent('ox_inventory:validateInventoryObject', function(netId, model)
 		return TriggerClientEvent('ox_lib:notify', source, { type = 'error', description = error })
 	end
 	
-	local player = Ox.GetPlayer(source)
+	local player = server.GetPlayerFromId(source)
 	if not player then return end
 	
 	local inventoryId

@@ -3,6 +3,15 @@ if not lib then return end
 local InventoryTypes = {}
 local RegisteredTypes = {}
 
+local function getInventory()
+	if not Inventory then
+		Inventory = require 'modules.inventory.server'
+	end
+	return Inventory
+end
+
+
+
 ---@class InventoryTypeConfig
 ---@field name string
 ---@field models number[]
@@ -201,12 +210,12 @@ function InventoryTypes.ValidateAccess(typeName, playerId, entity)
         return false, 'Invalid model for this inventory type'
     end
     
-    if typeData.validation.groups then
-        local player = Ox.GetPlayer(playerId)
-        if not player or not player.hasGroup(typeData.validation.groups) then
-            return false, 'Insufficient permissions'
-        end
-    end
+    	if typeData.validation.groups then
+		local inventory = getInventory()(playerId)
+		if not inventory or not server.hasGroup(inventory, typeData.validation.groups) then
+			return false, 'Insufficient permissions'
+		end
+	end
     
     return true
 end

@@ -14,6 +14,7 @@ local TriggerEventHooks = require 'modules.hooks.server'
 local db = require 'modules.mysql.server'
 local Items = require 'modules.items.server'
 local Inventory = require 'modules.inventory.server'
+local InventoryTypes = require 'modules.inventory.inventory_types'
 
 ---@param player table
 ---@param data table?
@@ -210,6 +211,40 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 		elseif invType == 'policeevidence' then
 			if ignoreSecurityChecks or server.hasGroup(left, shared.police) then
 				right = Inventory(('evidence-%s'):format(data))
+			end
+		elseif InventoryTypes.GetType(invType) then
+			-- Handle dynamic inventory types
+			local inventoryType = InventoryTypes.GetType(invType)
+			local inventoryId
+			
+			if inventoryType.behavior.useNetwork then
+				local coords = type(data) == 'table' and data or { x = data.x, y = data.y, z = data.z }
+				inventoryId = ('%s-%s-%s-%s'):format(invType, math.floor(coords.x), math.floor(coords.y), math.floor(coords.z))
+			else
+				inventoryId = type(data) == 'string' and data or ('%s-%s'):format(invType, data)
+			end
+			
+			right = Inventory(inventoryId)
+			
+			if not right then
+				local cachedItems = InventoryTypes.GetCachedItems(invType, inventoryId)
+				local items = {}
+				
+				if not cachedItems then
+					local generatedItems = InventoryTypes.GenerateItems(invType, inventoryId)
+					InventoryTypes.RefreshItems(invType, inventoryId)
+					
+					for i, itemData in ipairs(generatedItems) do
+						items[i] = { itemData.item, itemData.count }
+					end
+				else
+					for i, itemData in ipairs(cachedItems) do
+						items[i] = { itemData.item, itemData.count }
+					end
+				end
+				
+				right = Inventory.Create(inventoryId, inventoryType.interaction.label or invType, invType, 
+					inventoryType.slots or 15, 0, inventoryType.maxWeight or 100000, false, items)
 			end
 		elseif invType == 'dumpster' then
 			if shared.networkdumpsters then
