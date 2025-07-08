@@ -1383,9 +1383,33 @@ RegisterNetEvent('ox_inventory:setPlayerInventory', function(currentDrops, inven
 							TaskTurnPedToFaceCoord(playerPed, pedCoords.x, pedCoords.y, pedCoords.z, 50)
 						end
 
-					elseif currentInventory.coords and (#(playerCoords - currentInventory.coords) > maxDistance or canSteal) then
-						client.closeInventory()
-						lib.notify({ id = 'inventory_lost_access', type = 'error', description = locale('inventory_lost_access') })
+					elseif currentInventory.coords then
+						local currentObjectCoords = currentInventory.coords
+						
+						if currentInventory.netid and currentInventory.entityId then
+							local entity = NetworkGetEntityFromNetworkId(currentInventory.netid)
+							if entity and DoesEntityExist(entity) and entity == currentInventory.entityId then
+								local realCoords = GetEntityCoords(entity)
+								local coordsDiff = #(realCoords - currentInventory.coords)
+								
+								-- If object moved more than 0.5 units from original position, close inventory
+								if coordsDiff > 0.5 then
+									client.closeInventory()
+									lib.notify({ id = 'inventory_lost_access', type = 'error', description = locale('inventory_lost_access') })
+									return
+								end
+								
+								currentObjectCoords = realCoords
+							else
+								client.closeInventory()
+								lib.notify({ id = 'inventory_lost_access', type = 'error', description = locale('inventory_lost_access') })
+								return
+							end
+						end
+						if (#(playerCoords - currentObjectCoords) > maxDistance or canSteal) then
+							client.closeInventory()
+							lib.notify({ id = 'inventory_lost_access', type = 'error', description = locale('inventory_lost_access') })
+						end
 					end
 				end
 			end

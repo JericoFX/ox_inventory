@@ -3,20 +3,26 @@ if not lib then return end
 local InventoryTypesClient = {}
 local detectedObjects = {}
 local objectScanInterval = 3000
+local InventoryTypes = require 'modules.inventory.inventory_types'
 
 function InventoryTypesClient.DetectInventoryObject(entity)
     if not entity or not DoesEntityExist(entity) then return false end
     
     local model = GetEntityModel(entity)
-    local netId = NetworkGetNetworkIdFromEntity(entity)
-    
-    if not netId or netId == 0 then return false end
-    
     local coords = GetEntityCoords(entity)
     local objKey = ('%s-%s-%s-%s'):format(model, math.floor(coords.x), math.floor(coords.y), math.floor(coords.z))
     
     if detectedObjects[objKey] then
         return detectedObjects[objKey]
+    end
+    
+    local inventoryType = InventoryTypes.GetTypeByModel(model)
+    if not inventoryType then return false end
+    
+    local netId = NetworkGetNetworkIdFromEntity(entity)
+    
+    if inventoryType.behavior.useNetwork and (not netId or netId == 0) then
+        return false
     end
     
     TriggerServerEvent('ox_inventory:validateInventoryObject', netId, model)
@@ -29,9 +35,15 @@ function InventoryTypesClient.OpenInventoryObject(entity)
     if not entity or not DoesEntityExist(entity) then return false end
     
     local model = GetEntityModel(entity)
+    local inventoryType = InventoryTypes.GetTypeByModel(model)
+    
+    if not inventoryType then return false end
+    
     local netId = NetworkGetNetworkIdFromEntity(entity)
     
-    if not netId or netId == 0 then return false end
+    if inventoryType.behavior.useNetwork and (not netId or netId == 0) then
+        return false
+    end
     
     TriggerServerEvent('ox_inventory:validateInventoryObject', netId, model)
     return true
@@ -62,15 +74,25 @@ if shared.target then
 end
 
 SetInterval(function()
-    if not shared.target then
-        local objects = GetGamePool('CObject')
+    local objects = GetGamePool('CObject')
+    
+    for i = 1, #objects do
+        local object = objects[i]
+        local state = Entity(object).state
         
-        for i = 1, #objects do
-            local object = objects[i]
+        if state.isInventoryObject == nil then
+            local model = GetEntityModel(object)
+            local inventoryType = InventoryTypes.GetTypeByModel(model)
             
-            if InventoryTypesClient.IsNearInventoryObject(object) then
-                InventoryTypesClient.DetectInventoryObject(object)
+            state.isInventoryObject = inventoryType and true or false
+            
+            if inventoryType and not inventoryType.behavior.useNetwork then
+                FreezeEntityPosition(object, true)
             end
+        end
+        
+        if not shared.target and state.isInventoryObject and InventoryTypesClient.IsNearInventoryObject(object) then
+            InventoryTypesClient.DetectInventoryObject(object)
         end
     end
 end, objectScanInterval)

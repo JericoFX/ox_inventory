@@ -117,7 +117,9 @@ We provide compatibility for major FiveM frameworks:
 
 ### 🆕 **Recently Added**
 
-- **Dynamic Inventory Types System** - Create custom inventory types for world objects with configurable items and server-side validation
+- **Dynamic Inventory Types System** - Create custom inventory types for world objects with configurable items, server-side validation, and automatic item generation. Supports both coordinate-based and network-based ID generation with full export API
+- **Enhanced Security System** - Automatic object freezing, real-time movement detection, and comprehensive exploit prevention for all dynamic inventories
+- **Fixed Object Freezing Logic** - Corrected freeze behavior to only freeze objects when they don't use network synchronization, preventing unnecessary network overhead while maintaining exploit protection
 
 ---
 
@@ -171,10 +173,24 @@ We provide compatibility for major FiveM frameworks:
 - **Model-based registration** supporting multiple object models per type
 - **Automatic refresh** on resource/server restart or manual triggers
 - **Permission-based access** with group/job restrictions
-- **Network synchronization** for consistent cross-client behavior
+- **Network synchronization** with cleaned network ID handling
+- **Optimized freeze logic** preventing movement exploits without unnecessary network overhead
+
+#### **Network Optimization**
+
+The dynamic inventory system has been optimized with clean network ID handling:
+
+- **Smart freeze behavior** - Objects are frozen client-side when they don't use network synchronization to prevent movement exploits
+- **Network-based persistence** - Objects with network ID are inherently persistent and don't require freezing
+- **Clear separation** - `useNetwork` affects both inventory ID format and object persistence behavior
+- **Better performance** - Eliminated unnecessary network checks and duplicate validations
+
+#### **Registration Process**
+
+The dynamic inventory system is **fully runtime** - no server restart required:
 
 ```lua
--- Register a new inventory type
+-- Register a new inventory type (runtime)
 exports.ox_inventory:RegisterInventoryType({
     name = 'lockers',
     models = { 1234567890, 9876543210 },
@@ -184,21 +200,149 @@ exports.ox_inventory:RegisterInventoryType({
         label = 'Open Locker'
     },
     behavior = {
-        useNetwork = true,
-        freezeEntity = false
+        useNetwork = true  -- ⚠️ See performance warning below
     },
     slots = 10,
     maxWeight = 50000,
     items = {
-        maxItems = 3,
+        maxItems = 3,  -- ⚠️ Keep low with useNetwork=true
         items = {
             { name = 'water', min = 1, max = 2, chance = 60 },
             { name = 'bandage', min = 1, max = 1, chance = 30 },
             { name = 'money', min = 10, max = 100, chance = 15 }
         }
+    },
+    validation = {
+        groups = { ['police'] = 0 }  -- Optional group restrictions
     }
 })
 ```
+
+#### **Performance Warning**
+
+⚠️ **Network Synchronization Alert**: When using `useNetwork = true` with `maxItems > 10`, you'll receive a warning:
+
+```
+[ox_inventory] [WARN] Inventory type "lockers" uses network synchronization with 15 max items. 
+High item counts may cause network synchronization issues. Consider reducing maxItems or setting useNetwork to false.
+```
+
+**Best Practices:**
+- `useNetwork = true` + `maxItems ≤ 10` → ✅ Good performance
+- `useNetwork = false` + `maxItems > 10` → ✅ Good performance  
+- `useNetwork = true` + `maxItems > 10` → ⚠️ May cause network lag
+
+#### **Available Exports**
+
+All operations are **runtime** - no server restart required:
+
+```lua
+-- Unregister an inventory type (runtime)
+exports.ox_inventory:UnregisterInventoryType('lockers')
+
+-- Get specific inventory type configuration
+local config = exports.ox_inventory:GetInventoryType('lockers')
+
+-- Get all registered inventory types
+local allTypes = exports.ox_inventory:GetInventoryTypes()
+
+-- Refresh items for all inventories of a specific type (runtime)
+exports.ox_inventory:RefreshInventoryType('lockers')
+
+-- Set new item configuration for a type (runtime)
+exports.ox_inventory:SetInventoryTypeItems('lockers', {
+    maxItems = 5,
+    items = {
+        { name = 'newitem', min = 1, max = 3, chance = 50 }
+    }
+})
+
+-- Get current item configuration
+local items = exports.ox_inventory:GetInventoryTypeItems('lockers')
+```
+
+#### **Runtime Features**
+
+✅ **What you can do at runtime:**
+- Register new inventory types instantly
+- Unregister existing types
+- Update item configurations
+- Refresh inventory contents
+- Change loot tables
+- Modify spawn chances
+
+🔄 **Automatic updates:**
+- Existing inventories adapt to new configurations
+- Client-side targets update automatically
+- Object detection refreshes every 3 seconds
+- Changes apply immediately without restart
+
+#### **Behavior Configuration**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `useNetwork` | Use network ID for persistence (true) or client-side freezing (false) | `false` |
+
+#### **Network Behavior Explained**
+
+| Setting | Object Behavior | ID Format | Performance | Best For |
+|---------|----------------|-----------|-------------|----------|
+| `useNetwork = true` | Network persistent, no freezing | `type-x-y-z` coordinates | May lag with >10 items | Rare, high-value items |
+| `useNetwork = false` | Client-side frozen | `type-netid` | No network overhead | Common objects, many items |
+
+**Recommendation:** Use `useNetwork = false` for most cases unless you specifically need coordinate-based persistence.
+
+#### **Built-in Types**
+
+The system comes with pre-registered inventory types:
+
+- **Dumpsters** - Automatically registered with configurable loot tables
+- Support for `server.dumpsterloot` configuration or default items
+
+#### **Best Practices**
+
+🚀 **Performance Optimization:**
+- Default to `useNetwork = false` for better performance
+- Only use `useNetwork = true` for special coordinate-based persistence
+- Keep `maxItems ≤ 10` when using `useNetwork = true`
+
+🔧 **Development Tips:**
+- All operations are runtime - test configurations live
+- Use exports to modify existing types without restart
+- Monitor console for performance warnings
+- Objects refresh automatically every 3 seconds
+
+💡 **Common Use Cases:**
+- `useNetwork = false` → Storage boxes, lockers, containers
+- `useNetwork = true` → Evidence lockers, weapon caches (coordinate-based)
+
+The system includes comprehensive protection against common exploits:
+
+**🔒 Object Movement Protection:**
+- **Automatic freeze** - All inventory objects are frozen on access to prevent movement
+- **Real-time coordinate validation** - Continuously verifies object hasn't moved from original position
+- **Movement detection** - Closes inventory if object moves more than 0.5 units
+- **Entity integrity checks** - Validates entity still exists and matches original reference
+
+**📍 Proximity Validation:**
+- **Server-side coordination storage** - Object coordinates are captured and stored in the inventory
+- **Client-side proximity monitoring** - Continuous distance checking every 100ms when inventory is open
+- **Real-time coordinate tracking** - Uses live entity coordinates, not cached positions
+- **Automatic closure** - Inventory closes with notification if player moves too far
+
+| Security Check | Location | Frequency | Threshold |
+|----------------|----------|-----------|-----------|
+| Object Freeze | Server | On open | Immediate |
+| Movement Detection | Client | 100ms | 0.5 units |
+| Proximity Validation | Client | 100ms | `interaction.distance` |
+| Entity Integrity | Client | 100ms | Entity existence |
+
+**⚠️ Exploit Prevention:**
+- Prevents object teleportation while inventory is open
+- Blocks access from incorrect coordinates
+- Validates entity integrity in real-time
+- Automatic inventory closure on security violations
+
 
 ### **Registration System**
 

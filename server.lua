@@ -85,24 +85,7 @@ end
 exports('setPlayerInventory', server.setPlayerInventory)
 AddEventHandler('ox_inventory:setPlayerInventory', server.setPlayerInventory)
 
-local registeredDumpsters = {}
 
----@param coords vector3
----@return string?
-local function getDumpsterFromCoords(coords)
-	local found
-
-	for i = 1, #registeredDumpsters do
-		local distance = #(coords - registeredDumpsters[i])
-
-		if distance < 0.1 then
-			found = i
-			break
-		end
-	end
-
-	return found
-end
 
 ---@param playerPed number
 ---@param stash OxInventory
@@ -213,13 +196,21 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 				right = Inventory(('evidence-%s'):format(data))
 			end
 		elseif InventoryTypes.GetType(invType) then
-			-- Handle dynamic inventory types
 			local inventoryType = InventoryTypes.GetType(invType)
 			local inventoryId
+			local entity
 			
-			if inventoryType.behavior.useNetwork then
-				local coords = type(data) == 'table' and data or { x = data.x, y = data.y, z = data.z }
-				inventoryId = ('%s-%s-%s-%s'):format(invType, math.floor(coords.x), math.floor(coords.y), math.floor(coords.z))
+			if isDataTable and data.netid then
+				entity = NetworkGetEntityFromNetworkId(data.netid)
+				if not entity then return end
+				
+				local objectCoords = GetEntityCoords(entity)
+				
+				if inventoryType.behavior.useNetwork then
+					inventoryId = ('%s-%s-%s-%s'):format(invType, math.floor(objectCoords.x), math.floor(objectCoords.y), math.floor(objectCoords.z))
+				else
+					inventoryId = ('%s-%s'):format(invType, data.netid)
+				end
 			else
 				inventoryId = type(data) == 'string' and data or ('%s-%s'):format(invType, data)
 			end
@@ -246,28 +237,13 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 				right = Inventory.Create(inventoryId, inventoryType.interaction.label or invType, invType, 
 					inventoryType.slots or 15, 0, inventoryType.maxWeight or 100000, false, items)
 			end
-		elseif invType == 'dumpster' then
-			if shared.networkdumpsters then
-				local dumpsterId = getDumpsterFromCoords(data)
-				right = dumpsterId and Inventory(('dumpster-%s'):format(dumpsterId))
-
-				if not right then
-					dumpsterId = #registeredDumpsters + 1
-					right = Inventory.Create(('dumpster-%s'):format(dumpsterId), locale('dumpster'), invType, 15, 0,
-						100000, false)
-					registeredDumpsters[dumpsterId] = data
-				end
-			else
-				---@cast data string
-				right = Inventory(data)
-
-				if not right then
-					local netid = tonumber(data:sub(9))
-
-					if netid and NetworkGetEntityFromNetworkId(netid) > 0 then
-						right = Inventory.Create(data, locale('dumpster'), invType, 15, 0, 100000, false)
-					end
-				end
+			
+			if right and entity then
+				local objectCoords = GetEntityCoords(entity)
+				right.coords = vec3(objectCoords.x, objectCoords.y, objectCoords.z)
+				right.distance = inventoryType.interaction.distance or 2.0
+				right.netid = data.netid
+				right.entityId = entity
 			end
 		elseif invType == 'container' then
 			left.containerSlot = data --[[@as number]]

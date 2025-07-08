@@ -2907,53 +2907,21 @@ RegisterNetEvent('ox_inventory:validateInventoryObject', function(netId, model)
 		return TriggerClientEvent('ox_lib:notify', source, { type = 'error', description = error })
 	end
 	
-	local player = server.GetPlayerFromId(source)
-	if not player then return end
-	
-	local inventoryId
-	local coords = GetEntityCoords(entity)
-	
-	if inventoryType.behavior.useNetwork then
-		inventoryId = ('%s-%s-%s-%s'):format(inventoryType.name, math.floor(coords.x), math.floor(coords.y), math.floor(coords.z))
-	else
-		inventoryId = ('%s-%s'):format(inventoryType.name, netId)
-	end
-	
-	local inventory = Inventory(inventoryId)
-	
-	if not inventory then
-		local cachedItems = InventoryTypes.GetCachedItems(inventoryType.name, inventoryId)
-		local items = {}
-		
-		if not cachedItems then
-			local generatedItems = InventoryTypes.GenerateItems(inventoryType.name, inventoryId)
-			InventoryTypes.RefreshItems(inventoryType.name, inventoryId)
-			
-			for i, itemData in ipairs(generatedItems) do
-				items[i] = { itemData.item, itemData.count }
-			end
-		else
-			for i, itemData in ipairs(cachedItems) do
-				items[i] = { itemData.item, itemData.count }
-			end
-		end
-		
-		inventory = Inventory.Create(inventoryId, inventoryType.interaction.label or inventoryType.name, inventoryType.name, 
-			inventoryType.slots or 15, 0, inventoryType.maxWeight or 100000, false, items)
-		
-		if inventoryType.behavior.freezeEntity then
-			FreezeEntityPosition(entity, true)
-		end
-	end
-	
-	if inventory then
-		player:openInventory(inventory)
-	end
+	-- Trigger the client to open inventory normally
+	-- The freeze and security logic is now handled in openInventory function
+	local data = { netid = netId }
+	TriggerClientEvent('ox_inventory:openInventory', source, inventoryType.name, data)
 end)
 
 -- Inventory Types Exports
 exports('RegisterInventoryType', function(config)
-	return InventoryTypes.Register(config)
+	local success, error = InventoryTypes.Register(config)
+	
+	if success and shared.target then
+		TriggerClientEvent('ox_inventory:addInventoryTarget', -1, config.models, config.interaction)
+	end
+	
+	return success, error
 end)
 
 exports('UnregisterInventoryType', function(typeName)
@@ -3005,8 +2973,7 @@ CreateThread(function()
 			label = 'Search Dumpster'
 		},
 		behavior = {
-			useNetwork = shared.networkdumpsters,
-			freezeEntity = true
+			useNetwork = shared.networkdumpsters
 		},
 		slots = 15,
 		maxWeight = 100000,
@@ -3034,6 +3001,17 @@ CreateThread(function()
 	
 	if not success then
 		print('Failed to register dumpster inventory type')
+	else
+		if shared.target then
+			TriggerClientEvent('ox_inventory:addInventoryTarget', -1, 
+				{ 218085040, 666561306, -58485588, -206690185, 1511880420, 682791951 },
+				{
+					distance = 2.0,
+					icon = 'fas fa-dumpster',
+					label = 'Search Dumpster'
+				}
+			)
+		end
 	end
 end)
 

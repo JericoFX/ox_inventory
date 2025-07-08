@@ -47,5 +47,6 @@ files {
     'modules/**/client.lua',
     'modules/**/**/client.lua',
     'modules/bridge/**/client.lua',
+    'modules/inventory/inventory_types_client.lua',
     'data/*.lua',
 }

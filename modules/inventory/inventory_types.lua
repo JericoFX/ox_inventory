@@ -109,6 +109,13 @@ function InventoryTypes.Register(config)
         cache = {}
     }
     
+    if typeData.behavior.useNetwork and typeData.items and typeData.items.maxItems then
+        local maxItems = typeData.items.maxItems
+        if maxItems > 10 then
+            lib.print.warn(('Inventory type "%s" uses network synchronization with %d max items. High item counts may cause network synchronization issues. Consider reducing maxItems or setting useNetwork to false.'):format(config.name, maxItems))
+        end
+    end
+    
     RegisteredTypes[config.name] = typeData
     
     return true
