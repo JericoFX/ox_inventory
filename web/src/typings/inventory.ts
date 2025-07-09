@@ -5,6 +5,7 @@ export enum InventoryType {
   SHOP = 'shop',
   CONTAINER = 'container',
   CRAFTING = 'crafting',
+  TRADE = 'trade',
 }
 
 export type Inventory = {

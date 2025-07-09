@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { useAppDispatch, useAppSelector } from '../../store';
-import { selectItemAmount, setItemAmount } from '../../store/inventory';
+import { selectItemAmount, setItemAmount, selectTrade, confirmTrade, cancelTrade } from '../../store/inventory';
 import { DragSource } from '../../typings';
 import { onUse } from '../../dnd/onUse';
 import { onGive } from '../../dnd/onGive';
 import { fetchNui } from '../../utils/fetchNui';
 import { Locale } from '../../store/locale';
+import { isEnvBrowser } from '../../utils/misc';
 import UsefulControls from './UsefulControls';
 
 const InventoryControl: React.FC = () => {
   const itemAmount = useAppSelector(selectItemAmount);
+  const trade = useAppSelector(selectTrade);
   const dispatch = useAppDispatch();
 
   const [infoVisible, setInfoVisible] = useState(false);
@@ -35,6 +37,42 @@ const InventoryControl: React.FC = () => {
     dispatch(setItemAmount(event.target.valueAsNumber));
   };
 
+  const handleTradeReady = async () => {
+    if (!trade?.isTrading) return;
+    
+    try {
+      if (!isEnvBrowser()) {
+        await fetchNui('confirmTrade', {
+          targetPlayerId: trade.targetPlayer.id,
+          playerItems: trade.playerItems,
+          targetItems: trade.targetItems
+        });
+      }
+      
+      dispatch(confirmTrade({ 
+        playerConfirmed: true, 
+        targetConfirmed: trade.targetConfirmed 
+      }));
+    } catch (error) {
+      console.error('Error confirming trade:', error);
+    }
+  };
+
+  const handleTradeCancel = async () => {
+    if (!trade?.isTrading) return;
+    
+    try {
+      if (!isEnvBrowser()) {
+        await fetchNui('cancelTrade', {
+          targetPlayerId: trade.targetPlayer.id
+        });
+      }
+      dispatch(cancelTrade());
+    } catch (error) {
+      console.error('Error canceling trade:', error);
+    }
+  };
+
   return (
     <>
       <UsefulControls infoVisible={infoVisible} setInfoVisible={setInfoVisible} />
@@ -47,17 +85,26 @@ const InventoryControl: React.FC = () => {
             onChange={inputHandler}
             min={0}
           />
-          <button className="inventory-control-button" ref={use}>
+          <button 
+            className={`inventory-control-button ${trade?.isTrading ? 'trade-ready' : ''}`}
+            ref={trade?.isTrading ? undefined : use}
+            onClick={trade?.isTrading ? handleTradeReady : undefined}
+            disabled={trade?.isTrading && trade.playerConfirmed}
+          >
             <svg viewBox="0 0 24 24">
               <path d="M12 2a1 1 0 0 1 1 1v8h8a1 1 0 1 1 0 2h-9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" />
             </svg>
-            {Locale.ui_use || 'Use'}
+            {trade?.isTrading ? (trade.playerConfirmed ? 'Ready ✓' : 'Ready') : (Locale.ui_use || 'Use')}
           </button>
-          <button className="inventory-control-button" ref={give}>
+          <button 
+            className={`inventory-control-button ${trade?.isTrading ? 'trade-cancel' : ''}`}
+            ref={trade?.isTrading ? undefined : give}
+            onClick={trade?.isTrading ? handleTradeCancel : undefined}
+          >
             <svg viewBox="0 0 24 24">
               <path d="M14 3l7 7-7 7v-4H4v-6h10V3z" />
             </svg>
-            {Locale.ui_give || 'Give'}
+            {trade?.isTrading ? 'Cancel' : (Locale.ui_give || 'Give')}
           </button>
           <button className="inventory-control-button" onClick={() => fetchNui('exit')}>
             <svg viewBox="0 0 24 24">

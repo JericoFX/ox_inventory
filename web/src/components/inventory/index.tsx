@@ -3,7 +3,7 @@ import useNuiEvent from '../../hooks/useNuiEvent';
 import InventoryControl from './InventoryControl';
 import InventoryHotbar from './InventoryHotbar';
 import { useAppDispatch } from '../../store';
-import { refreshSlots, setAdditionalMetadata, setupInventory } from '../../store/inventory';
+import { refreshSlots, setAdditionalMetadata, setupInventory, initTrade, confirmTrade, updateTradeItems, cancelTrade } from '../../store/inventory';
 import { useExitListener } from '../../hooks/useExitListener';
 import type { Inventory as InventoryProps } from '../../typings';
 import RightInventory from './RightInventory';
@@ -38,6 +38,22 @@ const Inventory: React.FC = () => {
 
   useNuiEvent('displayMetadata', (data: Array<{ metadata: string; value: string }>) => {
     dispatch(setAdditionalMetadata(data));
+  });
+
+  useNuiEvent('initTrade', (data: { targetPlayer: { id: number; name: string }, playerItems: any[], targetItems: any[] }) => {
+    dispatch(initTrade(data));
+  });
+
+  useNuiEvent('updateTrade', (data: { playerConfirmed: boolean, targetConfirmed: boolean }) => {
+    dispatch(confirmTrade(data));
+  });
+  
+  useNuiEvent('updateTradeItems', (data: { playerItems: any[], targetItems: any[] }) => {
+    dispatch(updateTradeItems(data));
+  });
+  
+  useNuiEvent('cancelTrade', () => {
+    dispatch(cancelTrade());
   });
 
   return (

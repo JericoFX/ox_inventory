@@ -1,9 +1,11 @@
 import React, { useCallback, useRef } from 'react';
 import { DragSource, Inventory, InventoryType, Slot, SlotWithItem } from '../../typings';
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd';
-import { useAppDispatch } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { selectTrade } from '../../store/inventory';
 import WeightBar from '../utils/WeightBar';
 import { onDrop } from '../../dnd/onDrop';
+import { onTradeDrop } from '../../dnd/onTradeDrop';
 import { onBuy } from '../../dnd/onBuy';
 import { Items } from '../../store/items';
 import { canCraftItem, canPurchaseItem, getItemUrl, isSlotWithItem } from '../../helpers';
@@ -29,6 +31,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
 ) => {
   const manager = useDragDropManager();
   const dispatch = useAppDispatch();
+  const trade = useAppSelector(selectTrade);
   const timerRef = useRef<number | null>(null);
 
   const canDrag = useCallback(() => {
@@ -65,6 +68,13 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
       }),
       drop: (source) => {
         dispatch(closeTooltip());
+        
+        // Si estamos en modo trade, usar onTradeDrop
+        if (trade?.isTrading) {
+          onTradeDrop(source, { inventory: inventoryType, item: { slot: item.slot } });
+          return;
+        }
+        
         switch (source.inventory) {
           case InventoryType.SHOP:
             onBuy(source, { inventory: inventoryType, item: { slot: item.slot } });
@@ -77,12 +87,31 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             break;
         }
       },
-      canDrop: (source) =>
-        (source.item.slot !== item.slot || source.inventory !== inventoryType) &&
-        inventoryType !== InventoryType.SHOP &&
-        inventoryType !== InventoryType.CRAFTING,
+      canDrop: (source) => {
+        // En modo trade, permitir drop desde player a trade y viceversa
+        if (trade?.isTrading) {
+          // Player a trade: permitir en cualquier slot vacío o en cualquier parte del trade
+          if (source.inventory === InventoryType.PLAYER && inventoryType === 'trade') {
+            return true; // Permitir drop en cualquier lugar del trade
+          }
+          
+          // Trade a player: permitir remover items del trade
+          if (source.inventory === 'trade' && inventoryType === InventoryType.PLAYER) {
+            return true;
+          }
+          
+          return false;
+        }
+        
+        // Lógica normal para cuando no estamos en trade
+        return (
+          (source.item.slot !== item.slot || source.inventory !== inventoryType) &&
+          inventoryType !== InventoryType.SHOP &&
+          inventoryType !== InventoryType.CRAFTING
+        );
+      },
     }),
-    [inventoryType, item]
+    [inventoryType, item, trade]
   );
 
   useNuiEvent('refreshSlots', (data: { items?: ItemsPayload | ItemsPayload[] }) => {
@@ -120,13 +149,28 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
   const refs = useMergeRefs([connectRef, ref]);
 
   const rarity = (item as any)?.metadata?.rarity ? (item as any).metadata.rarity.toLowerCase() : 'common';
+  
+  // Detectar si es un item de trade y de quién es
+  const isTradeItem = (item as any)?.metadata?.tradeOwner;
+  const isPlayerTradeItem = isTradeItem === 'player';
+  const isTargetTradeItem = isTradeItem === 'target';
+  
+  // Clases CSS adicionales para items de trade
+  const tradeClasses = isTradeItem ? (
+    isPlayerTradeItem ? 'trade-item-player' : 'trade-item-target'
+  ) : '';
+  
+  // Borde especial para items de trade
+  const tradeBorder = isTradeItem ? (
+    isPlayerTradeItem ? '2px solid #4CAF50' : '2px solid #2196F3'
+  ) : undefined;
 
   return (
     <div
       ref={refs}
       onContextMenu={handleContext}
       onClick={handleClick}
-      className={`inventory-slot rarity-${rarity} ${isDragging ? 'dragging' : ''}`}
+      className={`inventory-slot rarity-${rarity} ${isDragging ? 'dragging' : ''} ${tradeClasses}`}
       style={{
         filter:
           !canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) || !canCraftItem(item, inventoryType)
@@ -134,9 +178,16 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             : undefined,
         opacity: isDragging ? 0.4 : 1.0, // maintain slight transparency while dragging
         backgroundImage: `url(${item?.name ? getItemUrl(item as SlotWithItem) : 'none'}`,
-        border: isOver ? '1px dashed rgba(255,255,255,0.4)' : undefined,
+        border: isOver ? '1px dashed rgba(255,255,255,0.4)' : tradeBorder,
       }}
     >
+      {/* Indicador de propietario del item en trade */}
+      {isTradeItem && (
+        <div className={`trade-owner-indicator ${isPlayerTradeItem ? 'player-item' : 'target-item'}`}>
+          {isPlayerTradeItem ? 'TU' : 'ELLOS'}
+        </div>
+      )}
+      
       {isSlotWithItem(item) && (
         <div
           className="item-slot-wrapper"

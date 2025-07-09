@@ -12,4 +12,15 @@ export type State = {
     leftInventory: Inventory;
     rightInventory: Inventory;
   };
+  trade?: {
+    isTrading: boolean;
+    targetPlayer: {
+      id: number;
+      name: string;
+    };
+    playerConfirmed: boolean;
+    targetConfirmed: boolean;
+    playerItems: Slot[];
+    targetItems: Slot[];
+  };
 };

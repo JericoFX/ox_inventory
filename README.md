@@ -121,6 +121,7 @@ We provide compatibility for major FiveM frameworks:
 - **Enhanced Security System** - Automatic object freezing, real-time movement detection, and comprehensive exploit prevention for all dynamic inventories
 - **Fixed Object Freezing Logic** - Corrected freeze behavior to only freeze objects when they don't use network synchronization, preventing unnecessary network overhead while maintaining exploit protection
 - **Secure Presets System** - Comprehensive preset management system with server-side validation, rate limiting, usage tracking, and security logging. Supports job restrictions, location-based activation, and activator items with configurable cooldowns
+- **Trading System** - Secure player-to-player item exchange with distance validation, dual confirmation, and proper localization support
 
 ---
 
@@ -176,6 +177,29 @@ We provide compatibility for major FiveM frameworks:
 - **Permission-based access** with group/job restrictions
 - **Network synchronization** with cleaned network ID handling
 - **Optimized freeze logic** preventing movement exploits without unnecessary network overhead
+
+---
+
+## 🤝 Trading System
+
+### **Secure Player-to-Player Trading**
+
+- **Distance validation** - Players must be within 3.0 units to initiate trades
+- **Dual confirmation** - Both players must confirm before trade execution
+- **Inventory validation** - Checks for item availability and weight limits using ox_inventory hooks
+- **Real-time updates** - Live synchronization of trade status between players
+- **Automatic cleanup** - Trades are cancelled if players disconnect
+- **Localization support** - Full support for multiple languages using locale keys
+- **Proper function declaration** - All functions declared locally before use for optimal performance
+
+### **Trading Process**
+
+1. **Initiation** - Players start trades using `/trade` command or ox_target integration
+2. **Item selection** - Players select items from their inventory to trade
+3. **Confirmation** - Both players must confirm the trade before execution
+4. **Validation** - System validates items and inventory capacity
+5. **Execution** - Items are safely transferred between players
+6. **Cleanup** - Trade data is cleared after completion or cancellation
 
 #### **Network Optimization**
 

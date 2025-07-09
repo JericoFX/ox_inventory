@@ -3,7 +3,7 @@ import useNuiEvent from './hooks/useNuiEvent';
 import { Items } from './store/items';
 import { Locale } from './store/locale';
 import { setImagePath } from './store/imagepath';
-import { setupInventory } from './store/inventory';
+import { setupInventory, initTrade, confirmTrade } from './store/inventory';
 import { Inventory } from './typings';
 import { useAppDispatch } from './store';
 import { debugData } from './utils/debugData';
@@ -11,6 +11,7 @@ import DragPreview from './components/utils/DragPreview';
 import { fetchNui } from './utils/fetchNui';
 import { useDragDropManager } from 'react-dnd';
 import KeyPress from './components/utils/KeyPress';
+import { isEnvBrowser } from './utils/misc';
 
 debugData([
   {
@@ -88,6 +89,72 @@ debugData([
   },
 ]);
 
+// Debug data para sistema de trading
+if (isEnvBrowser()) {
+  // Simular inicio de trade después de 3 segundos
+  setTimeout(() => {
+    const tradeData = {
+      targetPlayer: {
+        id: 2,
+        name: 'John Doe'
+      },
+      playerItems: [
+        {
+          name: 'water',
+          label: 'Water',
+          weight: 500,
+          slot: 1,
+          count: 2,
+          description: 'A refreshing bottle of water',
+          metadata: {},
+          stack: true
+        },
+        {
+          name: 'bread',
+          label: 'Bread',
+          weight: 200,
+          slot: 2,
+          count: 1,
+          description: 'Fresh bread',
+          metadata: {},
+          stack: true
+        }
+      ],
+      targetItems: [
+        {
+          name: 'lockpick',
+          label: 'Lockpick',
+          weight: 100,
+          slot: 1,
+          count: 1,
+          description: 'A simple lockpick',
+          metadata: {},
+          stack: true
+        },
+        {
+          name: 'iron',
+          label: 'Iron',
+          weight: 150,
+          slot: 2,
+          count: 3,
+          description: 'Raw iron ore',
+          metadata: {},
+          stack: true
+        }
+      ]
+    };
+    
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: {
+          action: 'initTrade',
+          data: tradeData,
+        },
+      })
+    );
+  }, 3000);
+}
+
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
   const manager = useDragDropManager();
@@ -121,6 +188,112 @@ const App: React.FC = () => {
       <InventoryComponent />
       <DragPreview />
       <KeyPress />
+      {isEnvBrowser() && (
+        <button
+          onClick={() => {
+            const tradeData = {
+              targetPlayer: {
+                id: 2,
+                name: 'John Doe'
+              },
+              playerItems: [], // Inicialmente vacío
+              targetItems: []  // Inicialmente vacío
+            };
+            
+            dispatch(initTrade(tradeData));
+          }}
+          style={{
+            position: 'fixed',
+            top: '10px',
+            right: '10px',
+            padding: '10px 20px',
+            backgroundColor: '#4a5336',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            zIndex: 9999
+          }}
+        >
+          Test Trade
+        </button>
+      )}
+      {isEnvBrowser() && (
+        <button
+          onClick={() => {
+            dispatch(confirmTrade({ 
+              playerConfirmed: false, 
+              targetConfirmed: true 
+            }));
+          }}
+          style={{
+            position: 'fixed',
+            top: '60px',
+            right: '10px',
+            padding: '10px 20px',
+            backgroundColor: '#d08b45',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            zIndex: 9999
+          }}
+        >
+          Simulate Target Confirm
+        </button>
+      )}
+      {isEnvBrowser() && (
+        <button
+          onClick={() => {
+            const tradeData = {
+              targetPlayer: {
+                id: 2,
+                name: 'John Doe'
+              },
+              playerItems: [
+                {
+                  name: 'water',
+                  label: 'Water',
+                  weight: 500,
+                  slot: 1,
+                  count: 2,
+                  description: 'A refreshing bottle of water',
+                  metadata: { tradeOwner: 'player' },
+                  stack: true
+                }
+              ],
+              targetItems: [
+                {
+                  name: 'lockpick',
+                  label: 'Lockpick',
+                  weight: 100,
+                  slot: 21,
+                  count: 1,
+                  description: 'A simple lockpick',
+                  metadata: { tradeOwner: 'target' },
+                  stack: true
+                }
+              ]
+            };
+            
+            dispatch(initTrade(tradeData));
+          }}
+          style={{
+            position: 'fixed',
+            top: '110px',
+            right: '10px',
+            padding: '10px 20px',
+            backgroundColor: '#2196F3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            zIndex: 9999
+          }}
+        >
+          Test Trade with Items
+        </button>
+      )}
     </div>
   );
 };

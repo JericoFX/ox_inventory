@@ -89,5 +89,9 @@
   "crafting_bench": "Crafting Bench",
   "open_crafting_bench": "Open Crafting Bench",
   "not_enough_durability": "%s does not have enough durability",
-  "storage": "Storage"
+  "storage": "Storage",
+  "invalid_inventory": "One of the players does not have a valid inventory",
+  "item_not_found": "Item not found",
+  "items_valid": "Items are valid",
+  "trade_items_updated": "Trade items updated"
 }

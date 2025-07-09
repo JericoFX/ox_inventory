@@ -2,6 +2,8 @@ if not lib then return end
 
 require 'modules.bridge.client'
 require 'modules.interface.client'
+require 'modules.trading.client'
+require 'modules.trading.target'
 
 local Utils = require 'modules.utils.client'
 local Weapon = require 'modules.weapon.client'
