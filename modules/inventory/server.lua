@@ -1763,6 +1763,20 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
         end
 
         if data.toType == 'newdrop' then
+            local playerPed = GetPlayerPed(source)
+            if not playerPed or playerPed == 0 then return end
+
+            local playerCoords = GetEntityCoords(playerPed)
+            local clientCoords = data.coords
+
+            if type(clientCoords) == 'vector3' and #(clientCoords - playerCoords) <= 2.0 then
+                data.coords = clientCoords
+            else
+                data.coords = playerCoords
+            end
+
+            data.instance = Player(source).state.instance
+
             return dropItem(source, playerInventory, fromData, data)
         end
 
