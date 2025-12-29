@@ -305,9 +305,16 @@ lib.callback.register('ox_inventory:craftItem', function(source, id, index, reci
 				toSlot = toSlot,
 			}) then return false end
 
+			local duration = recipe.duration or 3000
+			local startTime = GetGameTimer()
 			local success = lib.callback.await('ox_inventory:startCrafting', source, id, recipeId)
 
 			if success then
+				local elapsed = GetGameTimer() - startTime
+				if elapsed < duration then
+					Wait(duration - elapsed)
+				end
+
 				for name, needs in pairs(recipe.ingredients) do
 					if Inventory.GetItemCount(left, name) < needs then return end
 				end

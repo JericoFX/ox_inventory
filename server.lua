@@ -69,6 +69,7 @@ exports('setPlayerInventory', server.setPlayerInventory)
 AddEventHandler('ox_inventory:setPlayerInventory', server.setPlayerInventory)
 
 local registeredDumpsters = {}
+local dumpsterCooldown = {}
 
 ---@param coords vector3
 ---@return string?
@@ -197,6 +198,19 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 			end
 		elseif invType == 'dumpster' then
 			if shared.networkdumpsters then
+				if type(data) ~= 'vector3' then return end
+
+				local playerCoords = GetEntityCoords(playerPed)
+
+				if #(playerCoords - data) > 2.5 then return end
+
+				local now = GetGameTimer()
+				local last = dumpsterCooldown[source]
+
+				if last and now - last < 1000 then return end
+
+				dumpsterCooldown[source] = now
+
 				local dumpsterId = getDumpsterFromCoords(data)
 				right = dumpsterId and Inventory(('dumpster-%s'):format(dumpsterId))
 
@@ -473,6 +487,9 @@ lib.callback.register('ox_inventory:useItem', function(source, itemName, slot, m
                 consume = consume
 			}) then return false end
 
+			local duration = item.usetime or 0
+			local startTime = duration > 0 and GetGameTimer() or 0
+
             ---@type boolean
 			local success = lib.callback.await('ox_inventory:usingItem', source, data, noAnim)
 
@@ -481,6 +498,13 @@ lib.callback.register('ox_inventory:useItem', function(source, itemName, slot, m
 			end
 
 			if not success then return end
+
+			if duration > 0 then
+				local elapsed = GetGameTimer() - startTime
+				if elapsed < duration then
+					Wait(duration - elapsed)
+				end
+			end
 
             inventory.usingItem = data
 
