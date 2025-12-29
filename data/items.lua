@@ -106,6 +106,14 @@ return {
 		label = 'Garbage',
 	},
 
+	['crafting_unlocks'] = {
+		label = 'Crafting Unlocks',
+		weight = 0,
+		stack = false,
+		close = false,
+		consume = 0,
+	},
+
 	['paperbag'] = {
 		label = 'Paper Bag',
 		weight = 1,

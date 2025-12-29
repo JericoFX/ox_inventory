@@ -51,6 +51,7 @@ export const canPurchaseItem = (item: Slot, inventory: { type: Inventory['type']
 export const canCraftItem = (item: Slot, inventoryType: string) => {
   if (!isSlotWithItem(item) || inventoryType !== 'crafting') return true;
   if (!item.ingredients) return true;
+  if (item.locked) return false;
   const leftInventory = store.getState().inventory.leftInventory;
   const ingredientItems = Object.entries(item.ingredients);
 

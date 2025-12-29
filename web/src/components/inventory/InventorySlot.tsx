@@ -118,6 +118,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
   };
 
   const refs = useMergeRefs([connectRef, ref]);
+  const isCraftingLocked = inventoryType === InventoryType.CRAFTING && isSlotWithItem(item) && item.locked;
 
   return (
     <div
@@ -173,6 +174,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             </div>
           </div>
           <div>
+            {isCraftingLocked && <div className="item-slot-locked">Locked</div>}
             {inventoryType !== 'shop' && item?.durability !== undefined && (
               <WeightBar percent={item.durability} durability />
             )}

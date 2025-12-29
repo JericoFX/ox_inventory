@@ -1,9 +1,15 @@
 return {
 	{
         name = 'debug_crafting',
+		station = 'debug_crafting',
 		items = {
 			{
 				name = 'lockpick',
+				unlock = {
+					id = 'debug_lockpick',
+					default = true,
+					stations = { 'debug_crafting' }
+				},
 				ingredients = {
 					scrapmetal = 5,
 					WEAPON_HAMMER = 0.05
