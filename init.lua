@@ -66,6 +66,7 @@ if IsDuplicityVersion() then
 				["burger", 1, 1]
 			]
 		]])),
+        worldcontainerloot = json.decode(GetConvar('inventory:worldcontainerloot', '{}')),
     }
 
     local accounts = json.decode(GetConvar('inventory:accounts', '["money"]'))
