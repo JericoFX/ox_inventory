@@ -13,6 +13,7 @@ local TriggerEventHooks = require 'modules.hooks.server'
 local db = require 'modules.mysql.server'
 local Items = require 'modules.items.server'
 local Inventory = require 'modules.inventory.server'
+require 'modules.inventory.trade'
 
 ---@param player table
 ---@param data table?

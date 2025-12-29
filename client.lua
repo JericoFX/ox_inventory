@@ -1760,6 +1760,77 @@ RegisterNUICallback('giveItem', function(data, cb)
     end
 end)
 
+RegisterNUICallback('tradeRequest', function(data, cb)
+	local targetId = data?.targetId
+
+	if not targetId then
+		local targetPlayer = Utils.GetClosestPlayer()
+		if not targetPlayer then
+			lib.notify({ id = 'nobody_nearby', type = 'error', description = locale('nobody_nearby') })
+			return cb(false)
+		end
+		targetId = GetPlayerServerId(targetPlayer)
+	end
+
+	local success, response = lib.callback.await('ox_inventory:tradeRequest', false, targetId)
+
+	if not success and response then
+		lib.notify({ type = 'error', description = locale(response) })
+	end
+
+	cb(success or false)
+end)
+
+RegisterNUICallback('tradeRespond', function(data, cb)
+	local success, response = lib.callback.await('ox_inventory:tradeRespond', false, data.tradeId, data.accepted)
+
+	if not success and response then
+		lib.notify({ type = 'error', description = locale(response) })
+	end
+
+	cb(success or false)
+end)
+
+RegisterNUICallback('tradeOfferItem', function(data, cb)
+	local success, response = lib.callback.await('ox_inventory:tradeOfferItem', false, data.tradeId, data.slot, data.count)
+
+	if not success and response then
+		lib.notify({ type = 'error', description = locale(response) })
+	end
+
+	cb(success or false)
+end)
+
+RegisterNUICallback('tradeRemoveItem', function(data, cb)
+	local success, response = lib.callback.await('ox_inventory:tradeRemoveItem', false, data.tradeId, data.slot)
+
+	if not success and response then
+		lib.notify({ type = 'error', description = locale(response) })
+	end
+
+	cb(success or false)
+end)
+
+RegisterNUICallback('tradeConfirm', function(data, cb)
+	local success, response = lib.callback.await('ox_inventory:tradeConfirm', false, data.tradeId)
+
+	if not success and response then
+		lib.notify({ type = 'error', description = locale(response) })
+	end
+
+	cb(success or false)
+end)
+
+RegisterNUICallback('tradeCancel', function(data, cb)
+	local success, response = lib.callback.await('ox_inventory:tradeCancel', false, data.tradeId)
+
+	if not success and response then
+		lib.notify({ type = 'error', description = locale(response) })
+	end
+
+	cb(success or false)
+end)
+
 RegisterNUICallback('useButton', function(data, cb)
 	useButton(data.id, data.slot)
 	cb(1)
@@ -1768,6 +1839,26 @@ end)
 RegisterNUICallback('exit', function(_, cb)
 	client.closeInventory()
 	cb(1)
+end)
+
+RegisterNetEvent('ox_inventory:tradeInvite', function(data)
+	if not invOpen then
+		client.openInventory()
+	end
+
+	SendNUIMessage({ action = 'tradeInvite', data = data })
+end)
+
+RegisterNetEvent('ox_inventory:tradeState', function(data)
+	if not invOpen then
+		client.openInventory()
+	end
+
+	SendNUIMessage({ action = 'tradeState', data = data })
+end)
+
+RegisterNetEvent('ox_inventory:tradeClosed', function(data)
+	SendNUIMessage({ action = 'tradeClosed', data = data })
 end)
 
 lib.callback.register('ox_inventory:startCrafting', function(id, recipe)
