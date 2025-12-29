@@ -1635,6 +1635,49 @@ local function dropItem(source, playerInventory, fromData, data)
 end
 
 local activeSlots = {}
+local lockedSlots = {}
+
+function Inventory.IsSlotLocked(inv, slot, lockId)
+	inv = Inventory(inv) --[[@as OxInventory]]
+	if not inv then return end
+
+	local locks = lockedSlots[inv.id]
+	if not locks then return false end
+	if lockId then return locks[slot] ~= nil and locks[slot] ~= lockId end
+	return locks[slot] ~= nil
+end
+exports('IsSlotLocked', Inventory.IsSlotLocked)
+
+function Inventory.LockSlot(inv, slot, lockId)
+	inv = Inventory(inv) --[[@as OxInventory]]
+	if not inv then return end
+
+	local locks = lockedSlots[inv.id] or {}
+	local current = locks[slot]
+
+	if current and lockId and current ~= lockId then return false end
+	if current and not lockId then return false end
+
+	locks[slot] = lockId or true
+	lockedSlots[inv.id] = locks
+	return true
+end
+exports('LockSlot', Inventory.LockSlot)
+
+function Inventory.UnlockSlot(inv, slot, lockId)
+	inv = Inventory(inv) --[[@as OxInventory]]
+	if not inv then return end
+
+	local locks = lockedSlots[inv.id]
+	if not locks then return end
+	if lockId and locks[slot] ~= lockId then return end
+
+	locks[slot] = nil
+	if not next(locks) then
+		lockedSlots[inv.id] = nil
+	end
+end
+exports('UnlockSlot', Inventory.UnlockSlot)
 
 ---@param source number
 ---@param data SwapSlotData
@@ -1660,6 +1703,10 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 
 	local fromRef = ('%s:%s'):format(fromInventory.id, data.fromSlot)
 	local toRef = ('%s:%s'):format(toInventory.id, data.toSlot)
+
+	if Inventory.IsSlotLocked(fromInventory, data.fromSlot) or Inventory.IsSlotLocked(toInventory, data.toSlot) then
+		return false, 'cannot_perform'
+	end
 
 	if activeSlots[fromRef] or activeSlots[toRef] then
 		return false, {
@@ -2456,6 +2503,10 @@ local function giveItem(playerId, slot, target, count)
 		local toSlot = Inventory.GetSlotForItem(toInventory, data.name, data.metadata)
 		local fromRef = ('%s:%s'):format(fromInventory.id, slot)
 		local toRef = ('%s:%s'):format(toInventory.id, toSlot)
+
+		if Inventory.IsSlotLocked(fromInventory, slot) or Inventory.IsSlotLocked(toInventory, toSlot) then
+			return { 'cannot_give', count, data.label }
+		end
 
 		if activeSlots[fromRef] or activeSlots[toRef] then
 			return { 'cannot_give', count, data.label }
