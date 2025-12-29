@@ -197,12 +197,25 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 				right = Inventory(('evidence-%s'):format(data))
 			end
 		elseif invType == 'dumpster' then
+			local containerType = 'dumpster'
+			local coords = data
+			local inventoryId = data
+
+			local model = nil
+
+			if isDataTable then
+				containerType = data.containerType or containerType
+				coords = data.coords or data
+				inventoryId = data.id or data
+				model = data.model
+			end
+
 			if shared.networkdumpsters then
-				if type(data) ~= 'vector3' then return end
+				if type(coords) ~= 'vector3' then return end
 
 				local playerCoords = GetEntityCoords(playerPed)
 
-				if #(playerCoords - data) > 2.5 then return end
+				if #(playerCoords - coords) > 2.5 then return end
 
 				local now = GetGameTimer()
 				local last = dumpsterCooldown[source]
@@ -211,23 +224,23 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 
 				dumpsterCooldown[source] = now
 
-				local dumpsterId = getDumpsterFromCoords(data)
+				local dumpsterId = getDumpsterFromCoords(coords)
 				right = dumpsterId and Inventory(('dumpster-%s'):format(dumpsterId))
 
 				if not right then
 					dumpsterId = #registeredDumpsters + 1
-					right = Inventory.Create(('dumpster-%s'):format(dumpsterId), locale('dumpster'), invType, 15, 0, 100000, false)
-					registeredDumpsters[dumpsterId] = data
+					right = Inventory.Create(('dumpster-%s'):format(dumpsterId), locale('dumpster'), invType, 15, 0, 100000, false, nil, nil, nil, containerType, model)
+					registeredDumpsters[dumpsterId] = coords
 				end
 			else
-				---@cast data string
-				right = Inventory(data)
+				---@cast inventoryId string
+				right = Inventory(inventoryId)
 
 				if not right then
-					local netid = tonumber(data:sub(9))
+					local netid = tonumber(inventoryId:sub(9))
 
 					if netid and NetworkGetEntityFromNetworkId(netid) > 0 then
-						right = Inventory.Create(data, locale('dumpster'), invType, 15, 0, 100000, false)
+						right = Inventory.Create(inventoryId, locale('dumpster'), invType, 15, 0, 100000, false, nil, nil, nil, containerType, model)
 					end
 				end
 			end

@@ -560,11 +560,13 @@ end, true)
 ---@param maxWeight number
 ---@param owner string | number | boolean
 ---@param items? table
+---@param containerType? string
+---@param model? number
 ---@param dbId? string | number
 ---@return OxInventory?
 --- This should only be utilised internally!
 --- To create a stash, please use `exports.ox_inventory:RegisterStash` instead.
-function Inventory.Create(id, label, invType, slots, weight, maxWeight, owner, items, groups, dbId)
+function Inventory.Create(id, label, invType, slots, weight, maxWeight, owner, items, groups, dbId, containerType, model)
 	if invType == 'player' and hasActiveInventory(id, owner) then return end
 
 	local self = {
@@ -583,7 +585,9 @@ function Inventory.Create(id, label, invType, slots, weight, maxWeight, owner, i
 		time = os.time(),
 		groups = groups,
 		openedBy = {},
-        dbId = dbId
+        dbId = dbId,
+		containerType = containerType,
+		model = model
 	}
 
 	if invType == 'drop' or invType == 'temp' or invType == 'dumpster' then
@@ -601,7 +605,7 @@ function Inventory.Create(id, label, invType, slots, weight, maxWeight, owner, i
 	end
 
 	if not items then
-		self.items, self.weight = Inventory.Load(self.dbId, invType, owner)
+		self.items, self.weight = Inventory.Load(self.dbId, invType, owner, containerType, model)
 	elseif weight == 0 and next(items) then
 		self.weight = Inventory.CalculateWeight(items)
 	end
@@ -767,14 +771,36 @@ local function randomLoot(loot)
     return items
 end
 
+---@param model? number
+---@param containerType? string
+---@return RandomLoot[]?
+local function resolveWorldContainerLoot(model, containerType)
+	if model then
+		local worldContainers = lib.load('data.worldcontainers') or {}
+		local entry = worldContainers.models and worldContainers.models[model]
+		local loot = type(entry) == 'table' and entry.loot or nil
+		if loot then return loot end
+	end
+
+	if containerType then
+		local loot = server.worldcontainerloot and server.worldcontainerloot[containerType]
+		if loot then return loot end
+	end
+
+	if containerType == 'dumpster' then return server.dumpsterloot end
+end
+
 ---@param inv inventory
 ---@param invType string
 ---@param items? table
+---@param containerType? string
+---@param model? number
 ---@return table returnData, number totalWeight
-local function generateItems(inv, invType, items)
+local function generateItems(inv, invType, items, containerType, model)
 	if items == nil then
 		if invType == 'dumpster' then
-			items = randomLoot(server.dumpsterloot)
+			local loot = resolveWorldContainerLoot(model, containerType)
+			items = loot and randomLoot(loot) or {}
 		elseif invType == 'vehicle' then
 			items = randomLoot(server.vehicleloot)
 		end
@@ -804,7 +830,9 @@ end
 ---@param id string|number
 ---@param invType string
 ---@param owner string | number | boolean
-function Inventory.Load(id, invType, owner)
+---@param containerType? string
+---@param model? number
+function Inventory.Load(id, invType, owner, containerType, model)
     if not invType then return end
 
 	local result
@@ -821,7 +849,7 @@ function Inventory.Load(id, invType, owner)
         end
 	elseif invType == 'dumpster' then
 		if server.randomloot then
-			return generateItems(id, invType)
+			return generateItems(id, invType, nil, containerType, model)
 		end
 	elseif id then
 		result = db.loadStash(owner or '', id)

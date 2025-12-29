@@ -2,7 +2,23 @@ if not lib then return end
 
 local Inventory = {}
 
-Inventory.Dumpsters = lib.array:new(218085040, 666561306, -58485588, -206690185, 1511880420, 682791951)
+local WorldContainers = lib.load('data.worldcontainers') or {}
+Inventory.WorldContainers = WorldContainers.models or {}
+
+local function getModelsByType(containerType)
+	local models = {}
+
+	for model, typeName in pairs(Inventory.WorldContainers) do
+		if (type(typeName) == 'table' and typeName.type or typeName) == containerType then
+			models[#models + 1] = model
+		end
+	end
+
+	return models
+end
+
+local dumpsterModels = getModelsByType('dumpster')
+Inventory.Dumpsters = lib.array:new(table.unpack(dumpsterModels))
 
 if shared.networkdumpsters then
     -- Make sure dumpsters are frozen to ensure persistent position across clients
@@ -27,10 +43,14 @@ if shared.networkdumpsters then
     end, 3000)
 end
 
-function Inventory.OpenDumpster(entity)
+function Inventory.OpenDumpster(entity, containerType)
+	local model = GetEntityModel(entity)
+	local containerData = Inventory.WorldContainers[model]
+	containerType = containerType or (type(containerData) == 'table' and containerData.type or containerData) or 'dumpster'
+
     if shared.networkdumpsters then
         local coords = GetEntityCoords(entity)
-        client.openInventory('dumpster', coords)
+        client.openInventory('dumpster', { coords = coords, containerType = containerType, model = model })
         return
     end
 
@@ -43,7 +63,7 @@ function Inventory.OpenDumpster(entity)
     end
 
     if netId then
-        client.openInventory('dumpster', 'dumpster' .. netId)
+        client.openInventory('dumpster', { id = 'dumpster' .. netId, containerType = containerType, model = model })
     end
 end
 
@@ -106,12 +126,24 @@ function Inventory.OpenTrunk(entity)
 end
 
 if shared.target then
-    exports.ox_target:addModel(Inventory.Dumpsters, {
-        icon = 'fas fa-dumpster',
-        label = locale('search_dumpster'),
-        onSelect = function(data) return Inventory.OpenDumpster(data.entity) end,
-        distance = 2
-    })
+	local containerTypes = {}
+
+	for _, containerType in pairs(Inventory.WorldContainers) do
+		containerTypes[type(containerType) == 'table' and containerType.type or containerType] = true
+	end
+
+	for containerType in pairs(containerTypes) do
+		local models = getModelsByType(containerType)
+
+		if #models > 0 then
+			exports.ox_target:addModel(models, {
+				icon = 'fas fa-dumpster',
+				label = locale('search_dumpster'),
+				onSelect = function(data) return Inventory.OpenDumpster(data.entity, containerType) end,
+				distance = 2
+			})
+		end
+	end
 
     exports.ox_target:addGlobalVehicle({
         icon = 'fas fa-truck-ramp-box',
