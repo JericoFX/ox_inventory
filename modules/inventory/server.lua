@@ -1639,7 +1639,10 @@ local activeSlots = {}
 ---@param source number
 ---@param data SwapSlotData
 lib.callback.register('ox_inventory:swapItems', function(source, data)
-	if data.count < 1 then return end
+	if type(data) ~= 'table' then return end
+	if type(data.count) ~= 'number' or data.count < 1 then return end
+	if type(data.fromSlot) ~= 'number' or type(data.toSlot) ~= 'number' then return end
+	if type(data.fromType) ~= 'string' or type(data.toType) ~= 'string' then return end
 
 	local playerInventory = Inventory(source)
 
@@ -2560,7 +2563,13 @@ local function updateWeapon(source, action, value, slot, specialAmmo)
 					table.remove(weapon.metadata.components, value)
 					weapon.weight = Inventory.SlotWeight(item, weapon)
 				elseif type == 'string' then
-					local component = inventory.items[tonumber(value)]
+					local componentSlot = tonumber(value)
+
+					if not componentSlot then return false end
+
+					local component = inventory.items[componentSlot]
+
+					if not component then return false end
 
 					if not Inventory.RemoveItem(inventory, component.name, 1) then return false end
 
@@ -2569,8 +2578,13 @@ local function updateWeapon(source, action, value, slot, specialAmmo)
 				end
 			elseif action == 'ammo' then
 				if item.hash == `WEAPON_FIREEXTINGUISHER` or item.hash == `WEAPON_PETROLCAN` or item.hash == `WEAPON_HAZARDCAN` or item.hash == `WEAPON_FERTILIZERCAN` then
-					weapon.metadata.durability = math.floor(value)
-					weapon.metadata.ammo = weapon.metadata.durability
+					if type ~= 'number' then return false end
+
+					local currentAmmo = weapon.metadata.ammo or 0
+					local clamped = math.floor(math.max(0, math.min(value, currentAmmo)))
+
+					weapon.metadata.durability = clamped
+					weapon.metadata.ammo = clamped
 				elseif value < weapon.metadata.ammo then
 					local durability = Items(weapon.name).durability * math.abs((weapon.metadata.ammo or 0.1) - value)
 					weapon.metadata.ammo = value
