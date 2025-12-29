@@ -221,6 +221,15 @@ function client.openInventory(inv, data)
                 coords = coords,
                 distance = distance
             }
+
+            local availability = left.craftingAvailability or {}
+
+            for i = 1, #right.items do
+                local recipe = right.items[i]
+                if recipe.id then
+                    recipe.locked = availability[recipe.id] == false
+                end
+            end
         end
     elseif invOpen ~= nil then
         if inv == 'policeevidence' then

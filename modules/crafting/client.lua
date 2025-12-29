@@ -9,6 +9,15 @@ local prompt = {
     message = ('**%s**  \n%s'):format(locale('open_crafting_bench'), locale('interact_prompt', GetControlInstructionalButton(0, 38, true):sub(3)))
 }
 
+---@param benchId number|string
+---@param recipe table
+---@return string
+local function getRecipeId(benchId, recipe)
+	local unlock = recipe.unlock
+	if type(unlock) == 'table' then unlock = unlock.id end
+	return recipe.id or unlock or ('%s:%s'):format(benchId, recipe.name)
+end
+
 ---@param id number
 ---@param data table
 local function createCraftingBench(id, data)
@@ -16,10 +25,12 @@ local function createCraftingBench(id, data)
 	local recipes = data.items
 
 	if recipes then
+		data.station = data.station or data.name or id
 		data.slots = #recipes
 
 		for i = 1, data.slots do
 			local recipe = recipes[i]
+			recipe.id = getRecipeId(id, recipe)
 			local item = Items[recipe.name]
 
 			if item then

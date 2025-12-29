@@ -14,6 +14,7 @@ export const onCraft = (source: DragSource, target: DropTarget) => {
 
   if (!isSlotWithItem(sourceSlot)) throw new Error(`Item ${sourceSlot.slot} name === undefined`);
 
+  if (sourceSlot.locked) return;
   if (sourceSlot.count === 0) return;
 
   const sourceData = Items[sourceSlot.name];

@@ -10,6 +10,7 @@ export type Slot = {
 };
 
 export type SlotWithItem = Slot & {
+  id?: string;
   name: string;
   count: number;
   weight: number;
@@ -20,4 +21,5 @@ export type SlotWithItem = Slot & {
   duration?: number;
   image?: string;
   grade?: number | number[];
+  locked?: boolean;
 };
