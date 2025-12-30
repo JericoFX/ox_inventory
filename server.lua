@@ -244,6 +244,18 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 					end
 				end
 			end
+		elseif invType == 'temp' then
+			local inventoryId = isDataTable and data.id or data
+
+			if not inventoryId then return end
+
+			right = Inventory(inventoryId)
+
+			if not right or right.type ~= 'temp' then return end
+
+			if not ignoreSecurityChecks then
+				if right.componentSource ~= source or right.componentWeaponSlot ~= left.weapon then return end
+			end
 		elseif invType == 'container' then
 			left.containerSlot = data --[[@as number]]
 			data = left.items[data]

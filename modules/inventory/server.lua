@@ -401,6 +401,24 @@ function Inventory.SetSlot(inv, item, count, metadata, slot)
 end
 
 local Items = require 'modules.items.server'
+local componentTempSlots = server.componenttempslots or 6
+local componentTempMaxWeight = server.componenttempweight or 2000
+
+local function getComponentType(componentName)
+	return componentName and Items(componentName)?.type
+end
+
+local function weaponHasComponentType(weaponSlot, componentType)
+	if not weaponSlot?.metadata?.components or not componentType then return false end
+
+	for i = 1, #weaponSlot.metadata.components do
+		if getComponentType(weaponSlot.metadata.components[i]) == componentType then
+			return true
+		end
+	end
+
+	return false
+end
 
 CreateThread(function()
     Inventory.accounts = server.accounts
@@ -1533,6 +1551,40 @@ local function generateInvId(prefix)
 	end
 end
 
+local function createComponentInventory(source, weaponSlot)
+	local inventory = Inventory(source)
+
+	if not inventory then return end
+	if inventory.weapon ~= weaponSlot then return end
+
+	local weaponSlotData = inventory.items[weaponSlot]
+	local weaponItem = weaponSlotData and Items(weaponSlotData.name)
+
+	if not weaponItem or not weaponItem.weapon then return end
+
+	if inventory.componentInventory then
+		local existing = Inventory(inventory.componentInventory)
+
+		if existing then Inventory.Remove(existing) end
+
+		inventory.componentInventory = nil
+	end
+
+	local tempId = generateInvId('temp')
+	local tempInventory = Inventory.Create(tempId, locale('ui_components'), 'temp', componentTempSlots, 0, componentTempMaxWeight, inventory.owner or source, {})
+
+	if not tempInventory then return end
+
+	tempInventory.componentSource = source
+	tempInventory.componentWeaponSlot = weaponSlot
+	tempInventory.componentWeaponName = weaponSlotData.name
+	inventory.componentInventory = tempId
+
+	return tempId
+end
+
+lib.callback.register('ox_inventory:createComponentInventory', createComponentInventory)
+
 local function CustomDrop(prefix, items, coords, slots, maxWeight, instance, model)
 	local dropId = generateInvId()
 	local inventory = Inventory.Create(dropId, ('%s %s'):format(prefix, dropId:gsub('%D', '')), 'drop', slots or shared.dropslots, 0, maxWeight or shared.dropweight, false, {})
@@ -1789,6 +1841,40 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
         if data.count > fromData.count then
             data.count = fromData.count
         end
+
+		local tempInventory = (fromInventory.type == 'temp' and fromInventory) or (toInventory.type == 'temp' and toInventory)
+
+		if tempInventory then
+			if tempInventory.componentSource ~= source then return false, 'cannot_perform' end
+			if playerInventory.weapon ~= tempInventory.componentWeaponSlot then return false, 'weapon_hand_wrong' end
+
+			local weaponSlotData = playerInventory.items[tempInventory.componentWeaponSlot]
+			local weaponItem = weaponSlotData and Items(weaponSlotData.name)
+
+			if not weaponItem or not weaponItem.weapon then return false, 'cannot_perform' end
+
+			if toInventory == tempInventory then
+				if fromInventory ~= playerInventory then return false, 'cannot_perform' end
+
+				local componentItem = Items(fromData.name)
+
+				if not componentItem or not componentItem.component then return false, 'cannot_perform' end
+
+				local componentType = componentItem.type
+
+				if not componentType then return false, 'cannot_perform' end
+
+				if weaponHasComponentType(weaponSlotData, componentType) then
+					return false, 'component_slot_occupied'
+				end
+
+				-- TODO: Server-side compatibility check for component vs weapon.
+			elseif fromInventory == tempInventory then
+				local componentItem = Items(fromData.name)
+
+				if not componentItem or not componentItem.component then return false, 'cannot_perform' end
+			end
+		end
 
         if data.toType == 'newdrop' then
             local playerPed = GetPlayerPed(source)
@@ -2606,22 +2692,70 @@ local function updateWeapon(source, action, value, slot, specialAmmo)
 	local type = type(value)
 
 	if type == 'table' and action == 'component' then
-		local item = inventory.items[value.slot]
+		if value.tempInventory then
+			local weaponSlot = slot or inventory.weapon
 
-		if item then
-			if item.metadata.components then
-				for k, v in pairs(item.metadata.components) do
-					if v == value.component then
-						if not Inventory.AddItem(inventory, value.component, 1) then return end
+			if weaponSlot ~= inventory.weapon then return end
 
-						table.remove(item.metadata.components, k)
-						inventory:syncSlotsWithPlayer({
-							{ item = item }
-						}, inventory.weight)
+			local weapon = inventory.items[weaponSlot]
+			local weaponItem = weapon and Items(weapon.name)
 
-			            if server.syncInventory then server.syncInventory(inventory) end
+			if not weaponItem or not weaponItem.weapon then return end
 
-						return true
+			local tempInventory = Inventory(value.tempInventory)
+
+			if not tempInventory or tempInventory.type ~= 'temp' then return end
+			if tempInventory.componentSource ~= source then return end
+			if tempInventory.componentWeaponSlot ~= weaponSlot then return end
+
+			local componentSlot = tonumber(value.slot)
+
+			if not componentSlot then return false end
+
+			local component = tempInventory.items[componentSlot]
+
+			if not component then return false end
+
+			local componentItem = Items(component.name)
+
+			if not componentItem or not componentItem.component then return false end
+
+			local componentType = componentItem.type
+
+			if not componentType then return false end
+			if weaponHasComponentType(weapon, componentType) then return false end
+
+			if not Inventory.RemoveItem(tempInventory, component.name, 1, component.metadata, componentSlot) then return false end
+
+			weapon.metadata.components = weapon.metadata.components or {}
+			table.insert(weapon.metadata.components, component.name)
+			weapon.weight = Inventory.SlotWeight(weaponItem, weapon)
+
+			inventory:syncSlotsWithPlayer({
+				{ item = weapon }
+			}, inventory.weight)
+
+			if server.syncInventory then server.syncInventory(inventory) end
+
+			return true
+		else
+			local item = inventory.items[value.slot]
+
+			if item then
+				if item.metadata.components then
+					for k, v in pairs(item.metadata.components) do
+						if v == value.component then
+							if not Inventory.AddItem(inventory, value.component, 1) then return end
+
+							table.remove(item.metadata.components, k)
+							inventory:syncSlotsWithPlayer({
+								{ item = item }
+							}, inventory.weight)
+
+				            if server.syncInventory then server.syncInventory(inventory) end
+
+							return true
+						end
 					end
 				end
 			end
@@ -2713,6 +2847,71 @@ lib.callback.register('ox_inventory:updateWeapon', updateWeapon)
 
 RegisterNetEvent('ox_inventory:updateWeapon', function(action, value, slot, specialAmmo)
 	updateWeapon(source, action, value, slot, specialAmmo)
+end)
+
+local function returnTempItems(playerInventory, tempInventory)
+	for _, item in pairs(tempInventory.items) do
+		Inventory.AddItem(playerInventory, item.name, item.count, item.metadata)
+	end
+end
+
+AddEventHandler('ox_inventory:closedInventory', function(source, invId)
+	local tempInventory = Inventories[invId]
+
+	if not tempInventory or tempInventory.type ~= 'temp' or not tempInventory.componentWeaponSlot then return end
+	if tempInventory.componentSource and tempInventory.componentSource ~= source then return end
+
+	local playerInventory = Inventory(source)
+
+	if not playerInventory then return end
+
+	if playerInventory.componentInventory == tempInventory.id then
+		playerInventory.componentInventory = nil
+	end
+
+	local weaponSlot = tempInventory.componentWeaponSlot
+	local weaponSlotData = playerInventory.items[weaponSlot]
+	local weaponItem = weaponSlotData and Items(weaponSlotData.name)
+
+	if not weaponSlotData or not weaponItem or not weaponItem.weapon or playerInventory.weapon ~= weaponSlot then
+		returnTempItems(playerInventory, tempInventory)
+		Inventory.Remove(tempInventory)
+		return
+	end
+
+	local tempSlots = {}
+
+	for slot in pairs(tempInventory.items) do
+		tempSlots[#tempSlots + 1] = slot
+	end
+
+	for i = 1, #tempSlots do
+		local slot = tempSlots[i]
+		local item = tempInventory.items[slot]
+
+		if item then
+			local componentItem = Items(item.name)
+			local componentType = componentItem and componentItem.type
+
+			if componentItem and componentItem.component and componentType and not weaponHasComponentType(weaponSlotData, componentType) then
+				local applied = updateWeapon(source, 'component', { tempInventory = tempInventory.id, slot = slot }, weaponSlot)
+
+				if applied then
+					local remaining = tempInventory.items[slot]
+
+					if remaining and remaining.count > 0 then
+						Inventory.AddItem(playerInventory, remaining.name, remaining.count, remaining.metadata)
+					end
+				else
+					Inventory.AddItem(playerInventory, item.name, item.count, item.metadata)
+				end
+			else
+				Inventory.AddItem(playerInventory, item.name, item.count, item.metadata)
+			end
+		end
+	end
+
+	Inventory.Remove(tempInventory)
 end)
 
 lib.callback.register('ox_inventory:removeAmmoFromWeapon', function(source, slot)
