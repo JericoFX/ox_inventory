@@ -651,42 +651,11 @@ local function useSlot(slot, noAnim)
 					lib.callback.await('ox_inventory:updateWeapon', false, 'load', newAmmo, false, currentWeapon.metadata.specialAmmo)
 				end)
 			elseif data.component then
-				local components = data.client.component
+				local tempId = lib.callback.await('ox_inventory:createComponentInventory', false, currentWeapon.slot)
 
-                if not components then return end
-
-				local componentType = data.type
-				local weaponComponents = PlayerData.inventory[currentWeapon.slot].metadata.components
-
-				-- Checks if the weapon already has the same component type attached
-				for componentIndex = 1, #weaponComponents do
-					if componentType == Items[weaponComponents[componentIndex]].type then
-						return lib.notify({ id = 'component_slot_occupied', type = 'error', description = locale('component_slot_occupied', componentType) })
-					end
+				if tempId then
+					client.openInventory('temp', { id = tempId })
 				end
-
-				for i = 1, #components do
-					local component = components[i]
-
-					if DoesWeaponTakeWeaponComponent(currentWeapon.hash, component) then
-						if HasPedGotWeaponComponent(playerPed, currentWeapon.hash, component) then
-							lib.notify({ id = 'component_has', type = 'error', description = locale('component_has', label) })
-						else
-							useItem(data, function(data)
-								if data then
-									local success = lib.callback.await('ox_inventory:updateWeapon', false, 'component', tostring(data.slot), currentWeapon.slot)
-
-									if success then
-										GiveWeaponComponentToPed(playerPed, currentWeapon.hash, component)
-										TriggerEvent('ox_inventory:updateWeaponComponent', 'added', component, data.name)
-									end
-								end
-							end)
-						end
-						return
-					end
-				end
-				lib.notify({ id = 'component_invalid', type = 'error', description = locale('component_invalid', label) })
 			elseif data.allowArmed then
 				useItem(data)
             else
