@@ -141,7 +141,7 @@ local function openInventory(source, invType, data, ignoreSecurityChecks)
 		if invType == 'stash' then
 			right = Inventory(data, left, ignoreSecurityChecks)
 			if right == false then return false end
-		elseif isDataTable then
+		elseif isDataTable and invType ~= 'dumpster' then
 			if data.netid then
                 local entity = NetworkGetEntityFromNetworkId(data.netid)
 
