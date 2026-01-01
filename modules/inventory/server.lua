@@ -2807,6 +2807,17 @@ local function updateWeapon(source, action, value, slot, specialAmmo)
 				if item.hash == `WEAPON_FIREEXTINGUISHER` or item.hash == `WEAPON_PETROLCAN` or item.hash == `WEAPON_HAZARDCAN` or item.hash == `WEAPON_FERTILIZERCAN` then
 					if type ~= 'number' then return false end
 
+					if weapon.metadata.ammo == nil then
+						local fallbackAmmo = weapon.metadata.durability
+
+						if type(fallbackAmmo) ~= 'number' then
+							fallbackAmmo = value
+						end
+
+						weapon.metadata.ammo = fallbackAmmo
+						weapon.metadata.durability = fallbackAmmo
+					end
+
 					local currentAmmo = weapon.metadata.ammo or 0
 					local clamped = math.floor(math.max(0, math.min(value, currentAmmo)))
 
