@@ -269,12 +269,17 @@ local function finalizeTrade(trade)
     end
 
     local completed = true
+    local added = {
+        [firstId] = {},
+        [secondId] = {}
+    }
 
     for _, offer in ipairs(firstIncoming) do
         if not Inventory.AddItem(firstInv, offer.name, offer.count, offer.metadata) then
             completed = false
             break
         end
+        added[firstId][#added[firstId] + 1] = offer
     end
 
     if completed then
@@ -283,14 +288,15 @@ local function finalizeTrade(trade)
                 completed = false
                 break
             end
+            added[secondId][#added[secondId] + 1] = offer
         end
     end
 
     if not completed then
-        for _, offer in ipairs(firstIncoming) do
+        for _, offer in ipairs(added[firstId]) do
             Inventory.RemoveItem(firstInv, offer.name, offer.count, offer.metadata)
         end
-        for _, offer in ipairs(secondIncoming) do
+        for _, offer in ipairs(added[secondId]) do
             Inventory.RemoveItem(secondInv, offer.name, offer.count, offer.metadata)
         end
         for _, rollback in ipairs(removed[firstId]) do
