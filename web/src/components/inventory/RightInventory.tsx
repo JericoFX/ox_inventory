@@ -31,28 +31,42 @@ const RightInventory: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!trade.expiresAt) {
+    const expiresAt = trade.expiresAt;
+
+    if (expiresAt == null) {
       setTimeLeft(null);
       return;
     }
+
     const updateTimer = () => {
-      setTimeLeft(Math.max(0, Math.floor((trade.expiresAt - Date.now()) / 1000)));
+      setTimeLeft(
+        Math.max(0, Math.floor((expiresAt - Date.now()) / 1000))
+      );
     };
+
     updateTimer();
     const interval = window.setInterval(updateTimer, 1000);
+
     return () => window.clearInterval(interval);
   }, [trade.expiresAt]);
 
   useEffect(() => {
-    if (!trade.invite?.expiresAt) {
+    const inviteExpiresAt = trade.invite?.expiresAt;
+
+    if (inviteExpiresAt == null) {
       setInviteTimeLeft(null);
       return;
     }
+
     const updateTimer = () => {
-      setInviteTimeLeft(Math.max(0, Math.floor((trade.invite!.expiresAt - Date.now()) / 1000)));
+      setInviteTimeLeft(
+        Math.max(0, Math.floor((inviteExpiresAt - Date.now()) / 1000))
+      );
     };
+
     updateTimer();
     const interval = window.setInterval(updateTimer, 1000);
+
     return () => window.clearInterval(interval);
   }, [trade.invite?.expiresAt]);
 
