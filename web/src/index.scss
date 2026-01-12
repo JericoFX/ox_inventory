@@ -127,6 +127,7 @@ button:active {
 
 .inventory-control {
   display: flex;
+  width: 18vh;
 
   .inventory-control-wrapper {
     display: flex;
@@ -134,6 +135,7 @@ button:active {
     gap: 20px;
     justify-content: center;
     align-items: center;
+    width: 100%;
   }
 
   .inventory-control-input {
@@ -147,6 +149,8 @@ button:active {
     border: none;
     color: #fff;
     background-color: $secondaryColor;
+    width: 100%;
+    box-sizing: border-box;
     &:focus-within {
       background-color: $secondaryColorDark;
     }
@@ -164,6 +168,7 @@ button:active {
     font-family: $mainFont;
     width: 100%;
     font-weight: 500;
+    box-sizing: border-box;
     &:hover {
       background-color: $secondaryColorDark;
     }
@@ -413,11 +418,13 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: calc($gridGap * 2);
+  width: calc(#{$gridCols} * #{$gridSize} + (#{$gridCols} - 1) * #{$gridGap});
 }
 .inventory-grid-header-wrapper {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: 100%;
   p {
     font-size: 16px;
   }
@@ -428,6 +435,7 @@ button:active {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 8px;
+  width: 100%;
 }
 
 .inventory-filter-input,
@@ -439,7 +447,9 @@ button:active {
   font-size: 12px;
   padding: 4px 6px;
   border-radius: 4px;
-  min-width: 80px;
+  min-width: 72px;
+  flex: 1 1 72px;
+  box-sizing: border-box;
 }
 
 .inventory-filter-input::placeholder {
@@ -454,6 +464,7 @@ button:active {
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
+  flex: 0 0 auto;
 }
 
 .inventory-filter-favorite.is-active {
@@ -468,6 +479,7 @@ button:active {
   grid-auto-rows: $gridSize + 0.22vh;
   gap: $gridGap;
   overflow-y: scroll;
+  width: 100%;
 }
 
 // inventory slots
@@ -728,6 +740,8 @@ button:active {
   height: 0.8vh;
   border-radius: 5%;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .transition-fade-enter {
