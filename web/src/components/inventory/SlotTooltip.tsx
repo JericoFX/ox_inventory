@@ -20,6 +20,7 @@ const SlotTooltip: React.ForwardRefRenderFunction<
   }, [item]);
   const description = item.metadata?.description || itemData?.description;
   const ammoName = itemData?.ammoName && Items[itemData?.ammoName]?.label;
+  const containerSize = item.metadata?.size;
 
   return (
     <>
@@ -82,6 +83,11 @@ const SlotTooltip: React.ForwardRefRenderFunction<
               {item.metadata?.weapontint && (
                 <p>
                   {Locale.ui_tint}: {item.metadata.weapontint}
+                </p>
+              )}
+              {item.metadata?.container && Array.isArray(containerSize) && (
+                <p>
+                  Capacity: {containerSize[0]} slots / {containerSize[1]}g
                 </p>
               )}
               {additionalMetadata.map((data: { metadata: string; value: string }, index: number) => (

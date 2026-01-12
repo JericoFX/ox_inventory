@@ -9,4 +9,8 @@ export type ItemData = {
   buttons?: string[];
   ammoName?: string;
   image?: string;
+  weapon?: boolean;
+  ammo?: boolean;
+  component?: boolean;
+  tint?: boolean;
 };
