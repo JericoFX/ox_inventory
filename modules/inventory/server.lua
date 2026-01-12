@@ -2540,18 +2540,20 @@ local function saveInventories(clearInventories)
 
     if not clearInventories then return end
 
-    for _, inv in pairs(Inventories) do
-        if not inv.open and not inv.player then
-            -- clear inventory from memory if unused for x minutes, or on entity/netid mismatch
-            if inv.type == 'glovebox' or inv.type == 'trunk' then
-                if NetworkGetEntityFromNetworkId(inv.netid) ~= inv.entityId then
-                    Inventory.Remove(inv)
-                end
-            elseif time - inv.time >= inventoryClearTime then
-                Inventory.Remove(inv)
-            end
-        end
-    end
+	for _, inv in pairs(Inventories) do
+		if inv.type == 'temp' and inv.expiresAt and time >= inv.expiresAt then
+			Inventory.Remove(inv)
+		elseif not inv.open and not inv.player then
+			-- clear inventory from memory if unused for x minutes, or on entity/netid mismatch
+			if inv.type == 'glovebox' or inv.type == 'trunk' then
+				if NetworkGetEntityFromNetworkId(inv.netid) ~= inv.entityId then
+					Inventory.Remove(inv)
+				end
+			elseif time - inv.time >= inventoryClearTime then
+				Inventory.Remove(inv)
+			end
+		end
+	end
 end
 
 lib.cron.new('*/5 * * * *', function()
@@ -3060,6 +3062,15 @@ function Inventory.CreateTemporaryStash(properties)
 
 	inventory.items, inventory.weight = generateItems(inventory, 'drop', properties.items)
 	inventory.coords = coords
+
+	local expiresAt = type(properties.expiresAt) == 'number' and math.floor(properties.expiresAt)
+	local expiresIn = type(properties.expiresIn) == 'number' and math.floor(properties.expiresIn)
+
+	if expiresAt and expiresAt > 0 then
+		inventory.expiresAt = expiresAt
+	elseif expiresIn and expiresIn > 0 then
+		inventory.expiresAt = os.time() + expiresIn
+	end
 
 	return inventory.id
 end

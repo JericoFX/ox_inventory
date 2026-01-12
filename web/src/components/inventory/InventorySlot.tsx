@@ -1,7 +1,7 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DragSource, Inventory, InventoryType, Slot, SlotWithItem } from '../../typings';
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd';
-import { useAppDispatch } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../store';
 import WeightBar from '../utils/WeightBar';
 import { onDrop } from '../../dnd/onDrop';
 import { onBuy } from '../../dnd/onBuy';
@@ -15,6 +15,7 @@ import { ItemsPayload } from '../../reducers/refreshSlots';
 import { closeTooltip, openTooltip } from '../../store/tooltip';
 import { openContextMenu } from '../../store/contextMenu';
 import { useMergeRefs } from '@floating-ui/react';
+import { useIntersection } from '../../hooks/useIntersection';
 
 interface SlotProps {
   inventoryId: Inventory['id'];
@@ -30,6 +31,22 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
   const manager = useDragDropManager();
   const dispatch = useAppDispatch();
   const timerRef = useRef<number | null>(null);
+  const favorites = useAppSelector((state) => state.favorites.items);
+  const [isVisible, setIsVisible] = useState(false);
+  const { ref: intersectionRef, entry } = useIntersection<HTMLDivElement>({ threshold: 0.1 });
+  const isFavorite = !!(item.name && favorites.includes(item.name));
+  const itemLabel = useMemo(
+    () => (item.name ? item.metadata?.label || Items[item.name]?.label || item.name : ''),
+    [item]
+  );
+  const itemImage = useMemo(
+    () => (isVisible && item?.name ? getItemUrl(item as SlotWithItem) : undefined),
+    [isVisible, item]
+  );
+
+  useEffect(() => {
+    if (entry?.isIntersecting) setIsVisible(true);
+  }, [entry]);
 
   const canDrag = useCallback(() => {
     return canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) && canCraftItem(item, inventoryType);
@@ -117,7 +134,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
     }
   };
 
-  const refs = useMergeRefs([connectRef, ref]);
+  const refs = useMergeRefs([connectRef, ref, intersectionRef]);
   const isCraftingLocked = inventoryType === InventoryType.CRAFTING && isSlotWithItem(item) && item.locked;
 
   return (
@@ -132,7 +149,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             ? 'brightness(80%) grayscale(100%)'
             : undefined,
         opacity: isDragging ? 0.4 : 1.0,
-        backgroundImage: `url(${item?.name ? getItemUrl(item as SlotWithItem) : 'none'}`,
+        backgroundImage: isVisible && item?.name ? `url(${itemImage || 'none'})` : 'none',
         border: isOver ? '1px dashed rgba(255,255,255,0.4)' : '',
       }}
     >
@@ -157,6 +174,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
               inventoryType === 'player' && item.slot <= 5 ? 'item-hotslot-header-wrapper' : 'item-slot-header-wrapper'
             }
           >
+            {isFavorite && <div className="inventory-slot-favorite">★</div>}
             {inventoryType === 'player' && item.slot <= 5 && <div className="inventory-slot-number">{item.slot}</div>}
             <div className="item-slot-info-wrapper">
               <p>
@@ -214,7 +232,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             )}
             <div className="inventory-slot-label-box">
               <div className="inventory-slot-label-text">
-                {item.metadata?.label ? item.metadata.label : Items[item.name]?.label || item.name}
+                {itemLabel}
               </div>
             </div>
           </div>

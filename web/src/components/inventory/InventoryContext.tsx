@@ -6,9 +6,10 @@ import { fetchNui } from '../../utils/fetchNui';
 import { Locale } from '../../store/locale';
 import { isSlotWithItem } from '../../helpers';
 import { setClipboard } from '../../utils/setClipboard';
-import { useAppSelector } from '../../store';
+import { useAppDispatch, useAppSelector } from '../../store';
 import React from 'react';
 import { Menu, MenuItem } from '../utils/menu/Menu';
+import { toggleFavorite } from '../../store/favorites';
 
 interface DataProps {
   action: string;
@@ -38,6 +39,8 @@ interface GroupedButtons extends Array<Group> {}
 const InventoryContext: React.FC = () => {
   const contextMenu = useAppSelector((state) => state.contextMenu);
   const item = contextMenu.item;
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector((state) => state.favorites.items);
 
   const handleClick = (data: DataProps) => {
     if (!item) return;
@@ -63,6 +66,9 @@ const InventoryContext: React.FC = () => {
         break;
       case 'custom':
         fetchNui('useButton', { id: (data?.id || 0) + 1, slot: item.slot });
+        break;
+      case 'favorite':
+        if (item?.name) dispatch(toggleFavorite(item.name));
         break;
     }
   };
@@ -115,6 +121,12 @@ const InventoryContext: React.FC = () => {
                 />
               ))}
           </Menu>
+        )}
+        {item?.name && (
+          <MenuItem
+            onClick={() => handleClick({ action: 'favorite' })}
+            label={favorites.includes(item.name) ? 'Unfavorite' : 'Favorite'}
+          />
         )}
         {((item && item.name && Items[item.name]?.buttons?.length) || 0) > 0 && (
           <>
