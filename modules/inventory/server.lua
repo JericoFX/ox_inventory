@@ -2541,11 +2541,11 @@ local function saveInventories(clearInventories)
     if not clearInventories then return end
 
 	for _, inv in pairs(Inventories) do
-		if inv.type == 'temp' and inv.expiresAt and time >= inv.expiresAt then
-			Inventory.Remove(inv)
-		elseif not inv.open and not inv.player then
+		if not inv.open and not inv.player then
 			-- clear inventory from memory if unused for x minutes, or on entity/netid mismatch
-			if inv.type == 'glovebox' or inv.type == 'trunk' then
+			if inv.type == 'temp' and inv.expiresAt and time >= inv.expiresAt then
+				Inventory.Remove(inv)
+			elseif inv.type == 'glovebox' or inv.type == 'trunk' then
 				if NetworkGetEntityFromNetworkId(inv.netid) ~= inv.entityId then
 					Inventory.Remove(inv)
 				end
