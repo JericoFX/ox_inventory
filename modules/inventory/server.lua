@@ -1868,7 +1868,9 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 					return false, 'component_slot_occupied'
 				end
 
-				-- TODO: Server-side compatibility check for component vs weapon.
+				if not weaponItem.ammoname then
+					return false, 'component_invalid'
+				end
 			elseif fromInventory == tempInventory then
 				local componentItem = Items(fromData.name)
 
