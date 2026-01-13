@@ -21,6 +21,17 @@ const SlotTooltip: React.ForwardRefRenderFunction<
   const description = item.metadata?.description || itemData?.description;
   const ammoName = itemData?.ammoName && Items[itemData?.ammoName]?.label;
   const containerSize = item.metadata?.size;
+  const containerWeight = typeof item.metadata?.weight === 'number' ? item.metadata?.weight : undefined;
+  const containerSlots = Array.isArray(containerSize) ? containerSize[0] : undefined;
+  const containerMaxWeight = Array.isArray(containerSize) ? containerSize[1] : undefined;
+  const containerPercent =
+    containerWeight !== undefined && containerMaxWeight ? Math.min((containerWeight / containerMaxWeight) * 100, 100) : 0;
+  const rarityValue = item.metadata?.rarity;
+  const formatWeight = (weight: number) =>
+    weight >= 1000
+      ? `${(weight / 1000).toLocaleString('en-us', { minimumFractionDigits: 2 })}kg`
+      : `${weight.toLocaleString('en-us', { minimumFractionDigits: 0 })}g`;
+  const weightLabel = item.weight !== undefined ? formatWeight(item.weight) : undefined;
 
   return (
     <>
@@ -45,6 +56,14 @@ const SlotTooltip: React.ForwardRefRenderFunction<
             )}
           </div>
           <Divider />
+          {/* Implements: IDEA-03 – Add item preview panel in tooltip. */}
+          <div className="tooltip-preview">
+            <img src={getItemUrl(item)} alt="item-preview" />
+            <div className="tooltip-preview-meta">
+              {weightLabel && <span>Weight: {weightLabel}</span>}
+              {rarityValue !== undefined && <span>Rarity: {rarityValue}</span>}
+            </div>
+          </div>
           {description && (
             <div className="tooltip-description">
               <ReactMarkdown className="tooltip-markdown">{description}</ReactMarkdown>
@@ -86,9 +105,22 @@ const SlotTooltip: React.ForwardRefRenderFunction<
                 </p>
               )}
               {item.metadata?.container && Array.isArray(containerSize) && (
-                <p>
-                  Capacity: {containerSize[0]} slots / {containerSize[1]}g
-                </p>
+                <div className="tooltip-container-capacity">
+                  {/* Implements: IDEA-01 – Add container capacity visualization. */}
+                  <p>
+                    Capacity: {containerSlots} slots / {containerMaxWeight}g
+                  </p>
+                  {containerWeight !== undefined && containerMaxWeight !== undefined && (
+                    <>
+                      <div className="tooltip-container-bar">
+                        <div className="tooltip-container-bar-fill" style={{ width: `${containerPercent}%` }} />
+                      </div>
+                      <p>
+                        Contents: {formatWeight(containerWeight)} / {formatWeight(containerMaxWeight)}
+                      </p>
+                    </>
+                  )}
+                </div>
               )}
               {additionalMetadata.map((data: { metadata: string; value: string }, index: number) => (
                 <Fragment key={`metadata-${index}`}>

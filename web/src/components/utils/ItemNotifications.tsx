@@ -27,6 +27,8 @@ export const useItemNotifications = () => {
 const ItemNotification = React.forwardRef(
   (props: { item: ItemNotificationProps; style?: React.CSSProperties }, ref: React.ForwardedRef<HTMLDivElement>) => {
     const slotItem = props.item.item;
+    // Implements: IDEA-07 – Add container indicator in item notifications.
+    const isContainerItem = !!slotItem.metadata?.container;
 
     return (
       <div
@@ -42,7 +44,10 @@ const ItemNotification = React.forwardRef(
             <p>{props.item.text}</p>
           </div>
           <div className="inventory-slot-label-box">
-            <div className="inventory-slot-label-text">{slotItem.metadata?.label || Items[slotItem.name]?.label}</div>
+            <div className="inventory-slot-label-text">
+              {slotItem.metadata?.label || Items[slotItem.name]?.label}
+              {isContainerItem && <span className="item-notification-container-indicator">Container</span>}
+            </div>
           </div>
         </div>
       </div>

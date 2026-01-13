@@ -49,6 +49,9 @@ const InventoryContext: React.FC = () => {
       case 'use':
         onUse({ name: item.name, slot: item.slot });
         break;
+      case 'openContainer':
+        onUse({ name: item.name, slot: item.slot });
+        break;
       case 'give':
         onGive({ name: item.name, slot: item.slot });
         break;
@@ -99,6 +102,13 @@ const InventoryContext: React.FC = () => {
     <>
       <Menu>
         <MenuItem onClick={() => handleClick({ action: 'use' })} label={Locale.ui_use || 'Use'} />
+        {/* Implements: IDEA-08 – Add container open action in context menu. */}
+        {item?.metadata?.container && (
+          <MenuItem
+            onClick={() => handleClick({ action: 'openContainer' })}
+            label={Locale.ui_open_container || 'Open container'}
+          />
+        )}
         <MenuItem onClick={() => handleClick({ action: 'give' })} label={Locale.ui_give || 'Give'} />
         <MenuItem onClick={() => handleClick({ action: 'drop' })} label={Locale.ui_drop || 'Drop'} />
         {item && item.metadata?.ammo > 0 && (
