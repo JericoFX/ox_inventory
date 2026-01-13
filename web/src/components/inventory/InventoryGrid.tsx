@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Inventory } from '../../typings';
+import { Inventory, SlotWithItem } from '../../typings';
 import WeightBar from '../utils/WeightBar';
 import InventorySlot from './InventorySlot';
 import { getTotalWeight, isSlotWithItem } from '../../helpers';
@@ -21,6 +21,8 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
   const [minWeight, setMinWeight] = useState('');
   const [maxWeight, setMaxWeight] = useState('');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
+  // Implements: IDEA-05 – Add sorting controls for inventory grid.
+  const [sortBy, setSortBy] = useState('slot');
   const containerRef = useRef(null);
   const { ref, entry } = useIntersection({ threshold: 0.5 });
   const isBusy = useAppSelector((state) => state.inventory.isBusy);
@@ -82,6 +84,55 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
     });
   }, [inventory.items, search, typeFilter, rarityFilter, minWeight, maxWeight, favoritesOnly, favorites, filtersActive]);
 
+  const sortedItems = useMemo(() => {
+    if (sortBy === 'slot') return filteredItems;
+
+    const itemsWith = filteredItems.filter(isSlotWithItem);
+    const emptyItems = filteredItems.filter((slot) => !isSlotWithItem(slot));
+
+    const labelFor = (slot: SlotWithItem) => slot.metadata?.label || Items[slot.name]?.label || slot.name;
+    const rarityFor = (slot: SlotWithItem) => slot.metadata?.rarity;
+
+    const compare = (a: SlotWithItem, b: SlotWithItem) => {
+      switch (sortBy) {
+        case 'name-asc':
+          return labelFor(a).localeCompare(labelFor(b));
+        case 'name-desc':
+          return labelFor(b).localeCompare(labelFor(a));
+        case 'weight-asc':
+          return (a.weight ?? 0) - (b.weight ?? 0);
+        case 'weight-desc':
+          return (b.weight ?? 0) - (a.weight ?? 0);
+        case 'rarity-asc': {
+          const rarityA = rarityFor(a);
+          const rarityB = rarityFor(b);
+          if (rarityA === undefined && rarityB === undefined) return 0;
+          if (rarityA === undefined) return 1;
+          if (rarityB === undefined) return -1;
+          const numA = typeof rarityA === 'number' ? rarityA : Number(rarityA);
+          const numB = typeof rarityB === 'number' ? rarityB : Number(rarityB);
+          if (!Number.isNaN(numA) && !Number.isNaN(numB)) return numA - numB;
+          return String(rarityA).localeCompare(String(rarityB));
+        }
+        case 'rarity-desc': {
+          const rarityA = rarityFor(a);
+          const rarityB = rarityFor(b);
+          if (rarityA === undefined && rarityB === undefined) return 0;
+          if (rarityA === undefined) return 1;
+          if (rarityB === undefined) return -1;
+          const numA = typeof rarityA === 'number' ? rarityA : Number(rarityA);
+          const numB = typeof rarityB === 'number' ? rarityB : Number(rarityB);
+          if (!Number.isNaN(numA) && !Number.isNaN(numB)) return numB - numA;
+          return String(rarityB).localeCompare(String(rarityA));
+        }
+        default:
+          return 0;
+      }
+    };
+
+    return [...itemsWith].sort(compare).concat(emptyItems);
+  }, [filteredItems, sortBy]);
+
   useEffect(() => {
     if (entry && entry.isIntersecting) {
       setPage((prev) => ++prev);
@@ -90,7 +141,7 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
 
   useEffect(() => {
     setPage(0);
-  }, [inventory.id, search, typeFilter, rarityFilter, minWeight, maxWeight, favoritesOnly]);
+  }, [inventory.id, search, typeFilter, rarityFilter, minWeight, maxWeight, favoritesOnly, sortBy]);
 
   return (
     <>
@@ -167,6 +218,22 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
               type="number"
               min="0"
             />
+            <select
+              aria-label="Sort items"
+              className="inventory-filter-select inventory-filter-icon"
+              data-icon="sort"
+              title="Sort items"
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value)}
+            >
+              <option value="slot">Sort</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="weight-asc">Weight (Low-High)</option>
+              <option value="weight-desc">Weight (High-Low)</option>
+              <option value="rarity-asc">Rarity (Low-High)</option>
+              <option value="rarity-desc">Rarity (High-Low)</option>
+            </select>
             <button
               aria-label="Favorites only"
               className={`inventory-filter-favorite ${favoritesOnly ? 'is-active' : ''}`}
@@ -181,7 +248,7 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
         </div>
         <div className="inventory-grid-container" ref={containerRef}>
           <>
-            {filteredItems.slice(0, (page + 1) * PAGE_SIZE).map((item, index) => (
+            {sortedItems.slice(0, (page + 1) * PAGE_SIZE).map((item, index) => (
               <InventorySlot
                 key={`${inventory.type}-${inventory.id}-${item.slot}`}
                 item={item}

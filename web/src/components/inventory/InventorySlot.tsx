@@ -35,6 +35,8 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
   const [isVisible, setIsVisible] = useState(false);
   const { ref: intersectionRef, entry } = useIntersection<HTMLDivElement>({ threshold: 0.1 });
   const isFavorite = !!(item.name && favorites.includes(item.name));
+  // Implements: IDEA-04 – Add container indicator on slots.
+  const isContainerItem = isSlotWithItem(item) && !!item.metadata?.container;
   const itemLabel = useMemo(
     () => (item.name ? item.metadata?.label || Items[item.name]?.label || item.name : ''),
     [item]
@@ -175,6 +177,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
             }
           >
             {isFavorite && <div className="inventory-slot-favorite">★</div>}
+            {isContainerItem && <div className="inventory-slot-container">C</div>}
             {inventoryType === 'player' && item.slot <= 5 && <div className="inventory-slot-number">{item.slot}</div>}
             <div className="item-slot-info-wrapper">
               <p>
