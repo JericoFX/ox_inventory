@@ -106,13 +106,19 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
           </div>
           <div className="inventory-grid-filters">
             <input
-              className="inventory-filter-input"
+              aria-label="Search"
+              className="inventory-filter-input inventory-filter-icon"
+              data-icon="search"
               placeholder="Search"
+              title="Search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
             <select
-              className="inventory-filter-select"
+              aria-label="Type filter"
+              className="inventory-filter-select inventory-filter-icon"
+              data-icon="type"
+              title="Type filter"
               value={typeFilter}
               onChange={(event) => setTypeFilter(event.target.value)}
             >
@@ -124,7 +130,10 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
               <option value="item">Other</option>
             </select>
             <select
-              className="inventory-filter-select"
+              aria-label="Rarity filter"
+              className="inventory-filter-select inventory-filter-icon"
+              data-icon="rarity"
+              title="Rarity filter"
               value={rarityFilter}
               onChange={(event) => setRarityFilter(event.target.value)}
               disabled={rarityOptions.length === 0}
@@ -137,24 +146,32 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
               ))}
             </select>
             <input
-              className="inventory-filter-input"
+              aria-label="Minimum weight"
+              className="inventory-filter-input inventory-filter-icon"
+              data-icon="min-weight"
               placeholder="Min g"
+              title="Minimum weight"
               value={minWeight}
               onChange={(event) => setMinWeight(event.target.value)}
               type="number"
               min="0"
             />
             <input
-              className="inventory-filter-input"
+              aria-label="Maximum weight"
+              className="inventory-filter-input inventory-filter-icon"
+              data-icon="max-weight"
               placeholder="Max g"
+              title="Maximum weight"
               value={maxWeight}
               onChange={(event) => setMaxWeight(event.target.value)}
               type="number"
               min="0"
             />
             <button
+              aria-label="Favorites only"
               className={`inventory-filter-favorite ${favoritesOnly ? 'is-active' : ''}`}
               onClick={() => setFavoritesOnly((prev) => !prev)}
+              title="Favorites only"
               type="button"
             >
               ★
