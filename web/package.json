@@ -25,7 +25,7 @@
   "scripts": {
     "start": "vite",
     "watch": "vite build --watch",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "format": "prettier --write \"./src/**/*.{ts,tsx,css}\""
   },

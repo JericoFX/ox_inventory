@@ -82,7 +82,17 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
 
       return true;
     });
-  }, [inventory.items, search, typeFilter, rarityFilter, minWeight, maxWeight, favoritesOnly, favorites, filtersActive]);
+  }, [
+    inventory.items,
+    search,
+    typeFilter,
+    rarityFilter,
+    minWeight,
+    maxWeight,
+    favoritesOnly,
+    favorites,
+    filtersActive,
+  ]);
 
   const sortedItems = useMemo(() => {
     if (sortBy === 'slot') return filteredItems;
@@ -148,9 +158,9 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
       <div className="inventory-grid-wrapper" style={{ pointerEvents: isBusy ? 'none' : 'auto' }}>
         <div>
           <div className="inventory-grid-header-wrapper">
-            <p>{inventory.label}</p>
+            <p data-title="name">{inventory.label}</p>
             {inventory.maxWeight && (
-              <p>
+              <p data-title="weight">
                 {weight / 1000}/{inventory.maxWeight / 1000}kg
               </p>
             )}
@@ -180,7 +190,7 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
               <option value="tint">Tints</option>
               <option value="item">Other</option>
             </select>
-            <select
+            {/* <select
               aria-label="Rarity filter"
               className="inventory-filter-select inventory-filter-icon"
               data-icon="rarity"
@@ -217,7 +227,7 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
               onChange={(event) => setMaxWeight(event.target.value)}
               type="number"
               min="0"
-            />
+            /> */}
             <select
               aria-label="Sort items"
               className="inventory-filter-select inventory-filter-icon"
@@ -234,15 +244,29 @@ const InventoryGrid: React.FC<{ inventory: Inventory }> = ({ inventory }) => {
               <option value="rarity-asc">Rarity (Low-High)</option>
               <option value="rarity-desc">Rarity (High-Low)</option>
             </select>
-            <button
-              aria-label="Favorites only"
-              className={`inventory-filter-favorite ${favoritesOnly ? 'is-active' : ''}`}
-              onClick={() => setFavoritesOnly((prev) => !prev)}
-              title="Favorites only"
-              type="button"
-            >
-              ★
-            </button>
+            {(favorites.length > 0 && (
+              <button
+                aria-label="Favorites only"
+                className={`inventory-filter-favorite ${favoritesOnly ? 'is-active' : ''}`}
+                onClick={() => setFavoritesOnly((prev) => !prev)}
+                title="Favorites only"
+                type="button"
+              >
+                ★
+              </button>
+            )) || (
+              <button
+                disabled={true}
+                aria-label="Favorites only"
+                className={`inventory-filter-favorite ${favoritesOnly && favorites.length > 1 ? 'is-active' : ''}`}
+                onClick={() => setFavoritesOnly((prev) => !prev)}
+                title="Favorites only"
+                type="button"
+                style={{ pointerEvents: favorites.length >= 1 ? 'inherit' : 'none' }}
+              >
+                ★
+              </button>
+            )}
           </div>
           <WeightBar percent={inventory.maxWeight ? (weight / inventory.maxWeight) * 100 : 0} />
         </div>

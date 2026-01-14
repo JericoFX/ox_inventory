@@ -1,36 +1,54 @@
-$mainColor: #22232c;
-$textColor: #c1c2c5;
-$mainFont: Roboto;
+// --- VARIABLES ACTUALIZADAS (Estilo Moderno/Clean) ---
 
-$secondaryColor: rgba(12, 12, 12, 0.4);
-$secondaryColorHighlight: #33343F;
-$secondaryColorLight: rgba(0, 0, 0, 0.5);
-$secondaryColorDark: rgba(12, 12, 12, 0.8);
+// Colores Base: Fondo oscuro profundo con transparencia para el efecto Glass
+$mainColor: rgb(20, 20, 25); // Fondo principal de paneles
+$glassBg: rgba(30, 30, 35, 0.6); // Fondo de slots
 
+// Texto: Blanco alto contraste
+$textColor: #ffffff;
+$textMuted: rgba(255, 255, 255, 0.6);
+
+// Acentos
+$accentColor: #3b82f6; // Azul moderno
+$dangerColor: #ef4444;
+$successColor: #10b981;
+$warningColor: #f59e0b;
+
+// Tipografía
+$mainFont: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+// Colores Secundarios / Estados
+$secondaryColor: rgba(255, 255, 255, 0.05); // Muy sutil para slots vacíos
+$secondaryColorHighlight: rgba(255, 255, 255, 0.1); // Hover
+$secondaryColorDark: rgba(0, 0, 0, 0.4);
+
+// Bordes y Sombras (Clave para el look moderno)
+$borderColor: rgba(255, 255, 255, 0.08);
+$shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+$radius: 8px; // Bordes más redondeados
+
+// Grid Layout (Manteniendo lógica original de tamaño)
 $gridCols: 5;
 $gridRows: 5;
 $gridSize: 10.2vh;
-$gridGap: 2px;
-$containerSize: calc(#{$gridRows} * #{$gridSize + 0.22vh} + #{$gridRows} * #{$gridGap});
+$gridGap: 6px; // Un poco más de aire entre slots
+$containerSize: calc(#{$gridRows} * #{$gridSize} + (#{$gridRows} - 1) * #{$gridGap});
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: $mainFont;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;
+  // Fondo del juego visible, el blur se maneja en el wrapper principal si es necesario
   background: none !important;
   overflow: hidden !important;
   user-select: none;
+  color: $textColor;
 }
 
 #root {
   height: 100%;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 ::-webkit-scrollbar {
@@ -56,23 +74,25 @@ input[type='number']::-webkit-outer-spin-button {
   color: white;
 }
 
+// --- COMPONENTES MODERNIZADOS ---
+
 .context-menu-list {
-  min-width: 200px;
-  background-color: $mainColor;
+  min-width: 180px;
+  background-color: #1f1f23;
+  backdrop-filter: blur(10px);
   color: $textColor;
-  padding: 4px;
-  border-color: rgba(0, 0, 0, 0.2);
-  border-style: inset;
-  border-width: 1px;
-  border-radius: 4px;
+  padding: 6px;
+  border: 1px solid $borderColor;
+  border-radius: $radius;
   outline: none;
   display: flex;
   flex-direction: column;
+  box-shadow: $shadow;
 }
 
-.context-menu-item  {
-  padding: 8px;
-  border-radius: 4px;
+.context-menu-item {
+  padding: 10px 12px;
+  border-radius: 6px;
   background-color: transparent;
   outline: none;
   border: none;
@@ -80,31 +100,27 @@ input[type='number']::-webkit-outer-spin-button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+
   &:active {
     transform: none;
   }
   &:hover {
     background-color: $secondaryColorHighlight;
-    cursor: pointer;
+    color: white;
   }
 }
 
-.tooltip-description {
-  padding-top: 5px;
-}
-
-.tooltip-markdown > p {
-  margin: 0;
-}
-
 button:active {
-  transform: translateY(3px);
+  transform: translateY(1px);
 }
 
 .item-drag-preview {
   width: 7.7vh;
   height: 7.7vh;
-  z-index: 1;
+  z-index: 100;
   position: fixed;
   pointer-events: none;
   top: 0;
@@ -121,18 +137,18 @@ button:active {
   justify-content: center;
   align-items: center;
   height: 100%;
-
-  gap: 20px;
+  gap: 25px; // Más espacio entre paneles
 }
 
 .inventory-control {
   display: flex;
   width: 18vh;
-
+  border-radius: 4px;
+  padding: 3px;
   .inventory-control-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -140,55 +156,62 @@ button:active {
 
   .inventory-control-input {
     transition: 200ms;
-    padding: 16px 8px;
-    border-radius: 2.5%;
+    padding: 12px 8px;
+    border-radius: $radius;
     font-family: $mainFont;
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
     outline: none;
-    border: none;
+    border: 1px solid $borderColor;
     color: #fff;
     background-color: $secondaryColor;
     width: 100%;
     box-sizing: border-box;
-    &:focus-within {
+
+    &:focus {
       background-color: $secondaryColorDark;
+      border-color: $accentColor;
     }
   }
 
   .inventory-control-button {
-    font-size: 14px;
+    font-size: 12px;
     color: #fff;
     background-color: $secondaryColor;
+    border: 1px solid $borderColor;
     transition: 200ms;
-    padding: 12px 8px;
-    border-radius: 2.5%;
-    border: none;
+    padding: 10px 8px;
+    border-radius: $radius;
     text-transform: uppercase;
     font-family: $mainFont;
     width: 100%;
-    font-weight: 500;
+    font-weight: 600;
     box-sizing: border-box;
+    letter-spacing: 0.5px;
+
     &:hover {
+      background-color: $secondaryColorHighlight;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    &:active {
       background-color: $secondaryColorDark;
+      border-color: $accentColor;
     }
   }
 }
 
 .trade-panel {
-  background-color: rgba(22, 22, 22, 0.96);
+  background-color: $mainColor;
+  backdrop-filter: blur(16px);
   color: $textColor;
   padding: 20px;
-  border-radius: 6px;
-  min-width: 320px;
+  border-radius: 12px;
+  border: 1px solid $borderColor;
+  min-width: 340px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.trade-panel-right {
-  width: 100%;
+  gap: 16px;
+  box-shadow: $shadow;
 }
 
 .trade-header {
@@ -196,6 +219,7 @@ button:active {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  font-weight: 600;
 }
 
 .trade-columns {
@@ -205,20 +229,22 @@ button:active {
 }
 
 .trade-column h3 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-size: 12px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 1px;
+  color: $textMuted;
 }
 
 .trade-dropzone {
-  border: 1px dashed rgba(255, 255, 255, 0.25);
-  border-radius: 4px;
-  padding: 10px;
+  border: 1px dashed $borderColor;
+  border-radius: $radius;
+  padding: 15px;
   text-align: center;
   font-size: 12px;
   margin-bottom: 10px;
-  color: rgba(255, 255, 255, 0.7);
+  color: $textMuted;
+  background: $secondaryColor;
 }
 
 .trade-items {
@@ -233,19 +259,20 @@ button:active {
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background-color: $secondaryColor;
+  border-radius: 6px;
   padding: 8px;
+  border: 1px solid transparent;
 }
 
 .trade-item-self {
-  border: 1px solid rgba(80, 160, 255, 0.35);
-  background-color: rgba(80, 160, 255, 0.08);
+  border-color: rgba(59, 130, 246, 0.3);
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 .trade-item-partner {
-  border: 1px solid rgba(100, 220, 140, 0.35);
-  background-color: rgba(100, 220, 140, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(16, 185, 129, 0.05);
 }
 
 .trade-item-image {
@@ -266,69 +293,64 @@ button:active {
 
 .trade-empty {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: $textMuted;
+  font-style: italic;
 }
 
 .trade-actions {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  margin-top: auto;
 }
 
 .trade-button {
-  background-color: $secondaryColor;
+  background-color: $accentColor;
   border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
+  border-radius: 6px;
+  padding: 8px 16px;
   font-size: 12px;
   color: #fff;
   text-transform: uppercase;
   font-family: $mainFont;
+  font-weight: 600;
   transition: 200ms;
+
   &:hover {
-    background-color: $secondaryColorDark;
+    background-color: #2563eb;
   }
   &:disabled {
     opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
 .trade-button-secondary {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: transparent;
+  border: 1px solid $borderColor;
   &:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: $secondaryColorHighlight;
   }
 }
 
 .trade-remove {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.6);
+  color: $dangerColor;
   font-size: 11px;
   text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
   &:hover {
-    color: #fff;
+    color: #dc2626;
   }
-}
-
-.trade-confirmations {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.trade-confirmed {
-  color: #6fdc6f;
-}
-
-.trade-timer {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
 }
 
 .useful-controls-dialog {
   background-color: $mainColor;
+  backdrop-filter: blur(20px);
+  border: 1px solid $borderColor;
+  box-shadow: $shadow;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -337,13 +359,14 @@ button:active {
   width: 450px;
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  border-radius: 4px;
+  padding: 24px;
+  border-radius: 12px;
   gap: 16px;
 }
 
 .useful-controls-dialog-overlay {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
 }
 
 .useful-controls-dialog-title {
@@ -352,20 +375,21 @@ button:active {
   justify-content: space-between;
   align-items: center;
   font-size: 18px;
+  font-weight: 600;
 }
 
 .useful-controls-dialog-close {
-  width: 25px;
-  height: 25px;
-  padding: 6px;
+  width: 32px;
+  height: 32px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 4px;
+  border-radius: 6px;
   fill: $textColor;
+  cursor: pointer;
+  transition: 0.2s;
   &:hover {
     background-color: $secondaryColorHighlight;
-    cursor: pointer;
   }
 }
 
@@ -378,55 +402,72 @@ button:active {
 .divider {
   width: 100%;
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: $borderColor;
 }
 
 .useful-controls-button {
   position: absolute !important;
-  bottom: 25px;
-  right: 25px;
+  bottom: 30px;
+  right: 30px;
   transition: 200ms !important;
   border: none;
   color: white;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   display: flex;
   justify-content: center;
   align-items: center;
   fill: white;
-  border-radius: 5% !important;
+  border-radius: $radius !important;
   background-color: $secondaryColor !important;
+  box-shadow: $shadow;
+  border: 1px solid $borderColor;
+
   &:hover {
-    background-color: $secondaryColorDark !important;
+    background-color: $accentColor !important;
+    border-color: $accentColor;
     cursor: pointer;
   }
 }
 
-.useful-controls-exit-button {
-  position: absolute !important;
-  right: 8px;
-  top: 8px;
-  border-radius: 2.5% !important;
-  color: grey !important;
-}
+// --- INVENTORY GRIDS ---
 
-// Dialog is used fro useful controls window
-
-
-// inventory grids
 .inventory-grid-wrapper {
   display: flex;
   flex-direction: column;
-  gap: calc($gridGap * 2);
+  gap: 12px;
   width: calc(#{$gridCols} * #{$gridSize} + (#{$gridCols} - 1) * #{$gridGap});
+  padding: 10px; // Padding interno para que no toque los bordes del grid
+  background: rgba(0, 0, 0, 0.658);
+  border-radius: 4px;
+  border: 1px solid $borderColor;
 }
+
 .inventory-grid-header-wrapper {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
-  p {
+  padding: 0 5px;
+
+  p[data-title='name'] {
     font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $textColor;
+    font-weight: 600;
+    border-bottom: 1px solid $borderColor;
+    padding-bottom: 4px;
+  }
+  p[data-title='weight'] {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $textMuted;
+    font-weight: 600;
+    border-bottom: 1px solid $borderColor;
+    padding-bottom: 4px;
   }
 }
 
@@ -435,22 +476,31 @@ button:active {
   flex-wrap: nowrap;
   gap: 6px;
   justify-content: space-between;
-  margin-top: 8px;
+  margin-top: 4px;
   width: 100%;
+  border-bottom: 1px solid $borderColor;
+  padding-bottom: 4px;
 }
 
 .inventory-filter-input,
 .inventory-filter-select {
-  background-color: $secondaryColor;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  color: $textColor;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid $borderColor;
+  color: white;
   font-family: $mainFont;
   font-size: 12px;
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   min-width: 72px;
   flex: 1 1 72px;
   box-sizing: border-box;
+  outline: none;
+  transition: 0.2s;
+
+  &:focus {
+    border-color: $accentColor;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }
 
 .inventory-filter-icon {
@@ -458,65 +508,73 @@ button:active {
   background-repeat: no-repeat;
   background-size: 14px;
   flex: 0 0 32px;
-  min-width: 32px;
-  padding: 4px;
+  min-width: 40px;
+  padding: 6px;
   text-indent: -9999px;
   width: 32px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  border: 1px solid $borderColor;
 }
 
 .inventory-filter-icon:focus,
 .inventory-filter-icon:focus-visible,
 .inventory-filter-icon:active {
-  background-position: 6px center;
+  background-position: 10px center;
   flex: 1 1 120px;
   min-width: 120px;
-  padding-left: 24px;
+  padding-left: 30px;
   text-indent: 0;
   width: auto;
+  background-color: rgba(0, 0, 0, 0.5);
 }
+select {
+  appearance: none; /* estándar */
+  -webkit-appearance: none; /* Chrome / Safari */
+  -moz-appearance: none; /* Firefox */
 
+  background-image: none; /* por si el browser insiste */
+}
+// Filtros de iconos (coloreados para UI moderna)
 .inventory-filter-icon[data-icon='search'] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%239ca3af' d='M505 442.7L405.3 343c28.4-34.9 45.7-79.4 45.7-128C451 96.5 354.5 0 232.5 0S14 96.5 14 215.5 110.5 431 232.5 431c48.6 0 93.6-17.3 128.4-45.9l99.6 99.7c4.5 4.5 10.6 7 17 7s12.5-2.5 17-7c9.4-9.4 9.4-24.6 0-34zM232.5 382C137.6 382 62 306.4 62 215.5S137.6 49 232.5 49 403 124.6 403 215.5 327.4 382 232.5 382z'/%3E%3C/svg%3E");
+}
+.inventory-filter-icon:focus[data-icon='search'] {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M505 442.7L405.3 343c28.4-34.9 45.7-79.4 45.7-128C451 96.5 354.5 0 232.5 0S14 96.5 14 215.5 110.5 431 232.5 431c48.6 0 93.6-17.3 128.4-45.9l99.6 99.7c4.5 4.5 10.6 7 17 7s12.5-2.5 17-7c9.4-9.4 9.4-24.6 0-34zM232.5 382C137.6 382 62 306.4 62 215.5S137.6 49 232.5 49 403 124.6 403 215.5 327.4 382 232.5 382z'/%3E%3C/svg%3E");
+}
+.inventory-filter-icon[data-icon='sort'] {
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27%23ffffff%27%20d%3D%27M7%204l-4%204h3v10h2V8h3L7%204zm10%2016l4-4h-3V6h-2v10h-3l4%204z%27%2F%3E%3C%2Fsvg%3E');
 }
 
 .inventory-filter-icon[data-icon='type'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M487.976 0H24.024C5.341 0-4.317 22.569 9.32 36.167L192 219.853V472c0 9.95 11.029 15.917 19.091 10.233l96-68.571A16 16 0 0 0 320 400V219.853L502.68 36.167C516.317 22.569 506.659 0 487.976 0z'/%3E%3C/svg%3E");
+  background-image: url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20fill%3D%27%23ffffff%27%20d%3D%27M12%2017.27L18.18%2021l-1.64-7.03L22%209.24l-7.19-.61L12%202%209.19%208.63%202%209.24l5.46%204.73L5.82%2021%2012%2017.27z%27%2F%3E%3C%2Fsvg%3E');
 }
 
-.inventory-filter-icon[data-icon='rarity'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%23ffffff' d='M287.9 17.8L354 150.2l146.5 21.3c26.2 3.8 36.7 36 17.7 54.6L416 347.1l25.1 146.3c4.5 26.2-23 46-46.4 33.7L288 439.6 181.3 527.1c-23.4 12.3-50.9-7.4-46.4-33.7L160 347.1 57.8 226.1c-19-18.6-8.5-50.8 17.7-54.6L222 150.2 288.1 17.8c11.7-23.6 45-23.9 56.8 0z'/%3E%3C/svg%3E");
-}
-
-.inventory-filter-icon[data-icon='min-weight'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23ffffff' d='M168.5 11.3c13.4-15.1 33.7-15.1 47.1 0l96 108c17.5 19.6 3.6 50.7-23.6 50.7H224V400c0 17.7-14.3 32-32 32s-32-14.3-32-32V170H96c-27.2 0-41.1-31.1-23.6-50.7l96-108z'/%3E%3C/svg%3E");
-}
-
-.inventory-filter-icon[data-icon='max-weight'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'%3E%3Cpath fill='%23ffffff' d='M215.5 500.7c-13.4 15.1-33.7 15.1-47.1 0l-96-108C54.9 373.1 68.8 342 96 342h64V112c0-17.7 14.3-32 32-32s32 14.3 32 32V342h64c27.2 0 41.1 31.1 23.6 50.7l-96 108z'/%3E%3C/svg%3E");
-}
-
-.inventory-filter-icon[data-icon='sort'] {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M304 416V48c0-17.7 14.3-32 32-32s32 14.3 32 32v368h36.1c28.4 0 42.8 34.5 22.6 54.6l-80.1 80.1c-12.5 12.5-32.8 12.5-45.3 0l-80.1-80.1c-20.2-20.2-5.8-54.6 22.6-54.6H304zM208 96v368c0 17.7-14.3 32-32 32s-32-14.3-32-32V96H107.9c-28.4 0-42.8-34.5-22.6-54.6l80.1-80.1c12.5-12.5 32.8-12.5 45.3 0l80.1 80.1c20.2 20.2 5.8 54.6-22.6 54.6H208z'/%3E%3C/svg%3E");
-}
-
-.inventory-filter-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+.inventory-filter-icon::placeholder {
+  color: $textMuted;
 }
 
 .inventory-filter-favorite {
-  background-color: $secondaryColor;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  color: $textColor;
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid $borderColor;
+  color: $textMuted;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
   cursor: pointer;
   flex: 0 0 auto;
+  transition: 0.2s;
+  z-index: 3;
+  &:hover {
+    color: #fff;
+    background-color: $secondaryColorHighlight;
+  }
 }
 
 .inventory-filter-favorite.is-active {
-  background-color: $secondaryColorDark;
+  background-color: rgba(255, 209, 102, 0.15);
   color: #ffd166;
+  border-color: rgba(255, 209, 102, 0.4);
 }
 
 .inventory-grid-container {
@@ -527,76 +585,83 @@ button:active {
   gap: $gridGap;
   overflow-y: scroll;
   width: 100%;
+  padding: 4px; // Espacio interno en el scroll
 }
 
-// inventory slots
+// --- SLOTS ---
+
 .inventory-slot {
-  background-color: $secondaryColor;
+  // Fondo sutil, sin el borde pesado "inset"
+  background-color: $glassBg;
   background-repeat: no-repeat;
   background-position: center;
-  border-radius: 2.5%;
+  border-radius: $radius;
   image-rendering: -webkit-optimize-contrast;
   position: relative;
   background-size: 7vh;
   color: $textColor;
-  border-color: rgba(0, 0, 0, 0.2);
-  border-style: inset;
-  border-width: 1px;
+  border: 1px solid $borderColor;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $secondaryColorHighlight;
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .inventory-slot-favorite {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  top: 4px;
+  right: 4px;
   color: #ffd166;
   font-size: 12px;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  z-index: 2;
 }
 
 .inventory-slot-container {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  background: rgba(0, 0, 0, 0.55);
-  color: $textColor;
+  top: 3px;
+  left: 3px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
   font-size: 10px;
-  font-weight: 600;
-  padding: 1px 4px;
-  border-radius: 3px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 4px;
   text-transform: uppercase;
-}
-
-.inventory-slot-label-box {
-  background-color: $mainColor;
-  color: $textColor;
-  text-align: center;
-  border-bottom-left-radius: 0.25vh;
-  border-bottom-right-radius: 0.25vh;
-  border-top-color: rgba(0, 0, 0, 0.2);
-  border-top-style: inset;
-  border-top-width: 1px;
+  backdrop-filter: blur(4px);
+  z-index: 2;
 }
 
 .inventory-slot-label-text {
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 2px 3px;
-  font-weight: 400;
-  font-family: $mainFont;
-  font-size: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  text-align: center;
 }
 
 .inventory-slot-number {
-  background-color: white;
-  color: black;
-  height: 12px;
-  border-top-left-radius: 0.25vh;
-  border-bottom-right-radius: 0.25vh;
-  padding: 3px;
-  font-size: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  height: 14px;
+  border-top-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  padding: 0 4px;
+  font-size: 11px;
   font-family: $mainFont;
+  font-weight: 600;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
+  border-right: none;
 }
 
 .item-slot-locked {
@@ -605,12 +670,15 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 10px;
   letter-spacing: 0.5px;
   color: $textColor;
   pointer-events: none;
+  border-radius: $radius;
+  z-index: 3;
 }
 
 .item-slot-wrapper {
@@ -653,7 +721,8 @@ button:active {
   padding-right: 3px;
   p {
     font-size: 14px;
-    text-shadow: 0.1vh 0.1vh 0 rgba(0, 0, 0, 0.7);
+    text-shadow: 0.1vh 0.1vh 0 rgba(0, 0, 0, 0.8);
+    font-weight: 600;
   }
 }
 
@@ -663,26 +732,29 @@ button:active {
   justify-content: flex-end;
   padding-right: 3px;
   p {
-    font-size: 14px;
-    text-shadow: 0.1vh 0.1vh 0 rgba(0, 0, 0, 0.7);
+    font-size: 13px;
+    color: $accentColor;
+    font-weight: 600;
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
   }
 }
 
+// --- TOOLTIPS (Glassmorphism) ---
 
 .tooltip-wrapper {
   pointer-events: none;
   display: flex;
   background-color: $mainColor;
-  width: 200px;
-  padding: 8px;
+  backdrop-filter: blur(12px);
+  width: 220px;
+  padding: 12px;
   flex-direction: column;
   min-width: 200px;
   color: $textColor;
   font-family: $mainFont;
-  border-radius: 4px;
-  border-color: rgba(0, 0, 0, 0.2);
-  border-style: inset;
-  border-width: 1px;
+  border-radius: $radius;
+  border: 1px solid $borderColor;
+  box-shadow: $shadow;
   p {
     font-size: 12px;
     font-weight: 400;
@@ -694,9 +766,13 @@ button:active {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid $borderColor;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
   p {
-    font-size: 15px;
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
   }
 }
 
@@ -705,26 +781,31 @@ button:active {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: 4px;
   svg {
     padding-right: 3px;
+    fill: white;
   }
   p {
-    font-size: 14px;
+    font-size: 12px;
+    color: $textMuted;
   }
 }
 
 .tooltip-ingredients {
-  padding-top: 5px;
+  padding-top: 8px;
 }
 
 .tooltip-preview {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 6px;
+  gap: 10px;
+  padding-bottom: 8px;
   img {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
   }
 }
@@ -734,26 +815,25 @@ button:active {
   flex-direction: column;
   gap: 2px;
   span {
+    font-size: 11px;
+    color: $textMuted;
+  }
+  strong {
     font-size: 12px;
+    color: white;
   }
 }
 
-.tooltip-container-capacity {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .tooltip-container-bar {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px inset rgba(0, 0, 0, 0.2);
-  height: 6px;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  height: 4px;
+  border-radius: 2px;
   overflow: hidden;
+  margin-top: 2px;
 }
 
 .tooltip-container-bar-fill {
-  background: #2ecc71;
+  background: linear-gradient(90deg, $successColor, $warningColor, $dangerColor);
   height: 100%;
   transition: width 150ms ease-in-out;
 }
@@ -762,28 +842,38 @@ button:active {
   display: flex;
   flex-direction: row;
   align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
   img {
-    width: 28px;
-    height: 28px;
-    padding-right: 5px;
+    width: 24px;
+    height: 24px;
+    padding-right: 8px;
   }
 }
 
-// hotbar
+// --- HOTBAR ---
 .hotbar-container {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   justify-content: center;
   width: 100%;
   position: absolute;
-  bottom: 2vh;
+  bottom: 3vh;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid $borderColor;
 }
 
 .hotbar-item-slot {
   @extend .inventory-slot;
   width: $gridSize;
   height: $gridSize;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .hotbar-slot-header-wrapper {
@@ -792,34 +882,38 @@ button:active {
   justify-content: space-between;
 }
 
-// item notifications
-
+// --- NOTIFICATIONS ---
 .item-notification-container {
   display: flex;
   overflow-x: scroll;
   flex-wrap: nowrap;
-  gap: 2px;
+  gap: 4px;
   position: absolute;
-  bottom: 20vh;
+  bottom: 18vh;
   left: 50%;
-  width: 100%;
-  margin-left: calc(50% - calc($gridSize/2));
   transform: translate(-50%);
+  width: auto;
+  max-width: 80vw;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  border-radius: 8px;
 }
 
 .item-notification-action-box {
   width: 100%;
   color: $textColor;
-  background-color: $secondaryColor;
+  background-color: $secondaryColorHighlight;
   text-transform: uppercase;
   text-align: center;
-  border-top-left-radius: 0.25vh;
-  border-top-right-radius: 0.25vh;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
   font-family: $mainFont;
   p {
-    font-size: 11px;
+    font-size: 10px;
     padding: 2px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.5px;
   }
 }
 
@@ -827,29 +921,38 @@ button:active {
   @extend .inventory-slot;
   height: $gridSize;
   width: $gridSize;
+  pointer-events: none;
 }
 
 .item-notification-container-indicator {
-  background: rgba(0, 0, 0, 0.6);
+  background: $accentColor;
+  color: white;
   border-radius: 3px;
-  color: $textColor;
   font-size: 9px;
   margin-left: 4px;
-  padding: 1px 3px;
+  padding: 2px 4px;
   text-transform: uppercase;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .durability-bar {
-  background: rgba(0, 0, 0, 0.5);
-  height: 3px;
+  background: rgba(0, 0, 0, 0.6);
+  height: 2px;
   overflow: hidden;
+  position: absolute;
+
+  left: 4px;
+  right: 4px;
+  border-radius: 1px;
 }
 
 .weight-bar {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px inset rgba(0, 0, 0, 0.1);
-  height: 0.8vh;
-  border-radius: 5%;
+  background: rgba(0, 0, 0, 0.68);
+  margin-top: 4px;
+  border: 1px solid $borderColor;
+  height: 5px;
+  border-radius: 4px;
   overflow: hidden;
   width: 100%;
   box-sizing: border-box;
@@ -858,35 +961,32 @@ button:active {
 .transition-fade-enter {
   opacity: 0;
 }
-
 .transition-fade-enter-active {
   opacity: 1;
   transition: opacity 200ms;
 }
-
 .transition-fade-exit {
   opacity: 1;
 }
-
 .transition-fade-exit-active {
   opacity: 0;
   transition: opacity 200ms;
 }
 
 .transition-slide-up-enter {
-  transform: translateY(200px)
+  transform: translateY(20px);
+  opacity: 0;
 }
-
 .transition-slide-up-enter-active {
-  transform: translateY(0px);
+  transform: translateY(0);
+  opacity: 1;
   transition: all 200ms;
 }
-
 .transition-slide-up-exit {
-  transform: translateY(0px);
+  transform: translateY(0);
 }
-
 .transition-slide-up-exit-active {
-  transform: translateY(200px);
+  transform: translateY(20px);
+  opacity: 0;
   transition: all 200ms;
 }
