@@ -40,6 +40,15 @@ We do not guarantee compatibility or support for third-party resources.
 - Internal item system provides secure and easy handling for item use effects.
 - Compatibility with 3rd party framework item registration.
 
+### Added
+
+- Rarity system.
+- Favorite system (just right click any item and mark as favorite)
+- Search function.
+- Trade Funcion.
+- Sort Funcion.
+
+
 ### Shops
 
 - Restricted access based on groups and licenses.
