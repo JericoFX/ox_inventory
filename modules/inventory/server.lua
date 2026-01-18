@@ -401,11 +401,30 @@ function Inventory.SetSlot(inv, item, count, metadata, slot)
 end
 
 local Items = require 'modules.items.server'
+local WeaponData = lib.load('data.weapons') or {}
+local WeaponComponents = WeaponData.Components or {}
 local componentTempSlots = server.componenttempslots or 6
 local componentTempMaxWeight = server.componenttempweight or 2000
 
 local function getComponentType(componentName)
 	return componentName and Items(componentName)?.type
+end
+
+local function isComponentCompatibleWithWeapon(weaponItem, componentName)
+	if not weaponItem or not weaponItem.weapon or not componentName then return false end
+
+	local componentData = WeaponComponents[componentName]
+	local componentHashes = componentData and componentData.client and componentData.client.component
+
+	if not componentHashes or not DoesWeaponTakeWeaponComponent then return false end
+
+	for i = 1, #componentHashes do
+		if DoesWeaponTakeWeaponComponent(weaponItem.hash, componentHashes[i]) then
+			return true
+		end
+	end
+
+	return false
 end
 
 local function weaponHasComponentType(weaponSlot, componentType)
@@ -1868,7 +1887,7 @@ lib.callback.register('ox_inventory:swapItems', function(source, data)
 					return false, 'component_slot_occupied'
 				end
 
-				if not weaponItem.ammoname then
+				if not weaponItem.ammoname and not isComponentCompatibleWithWeapon(weaponItem, componentItem.name) then
 					return false, 'component_invalid'
 				end
 			elseif fromInventory == tempInventory then
